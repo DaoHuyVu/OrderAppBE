@@ -1,6 +1,7 @@
 package com.nhom23.orderapp.service;
 
 import com.nhom23.orderapp.dto.ShipperDto;
+import com.nhom23.orderapp.dto.UserDto;
 import com.nhom23.orderapp.exception.AlreadyExistException;
 import com.nhom23.orderapp.exception.NotFoundException;
 import com.nhom23.orderapp.model.*;
@@ -10,6 +11,7 @@ import com.nhom23.orderapp.response.AuthResponse;
 import com.nhom23.orderapp.security.jwt.JwtUtil;
 import com.nhom23.orderapp.security.service.UserDetailsImp;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,7 +19,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -46,7 +52,7 @@ public class ShipperService {
             String password,
             String name,
             String phone,
-            Integer salary,
+            String salary,
             LocalDate dateOfBirth,
             String gender
     ){
@@ -67,7 +73,7 @@ public class ShipperService {
         Shipper shipper = new Shipper(
             name,phone,dateOfBirth,salary,Gender.valueOf(gender)
         );
-        UserDetailsImp user = getUserDetail();
+        UserDto user = getUserDetail();
         Long storeId = managerRepository.findStoreIdByManagerId(user.getId())
                 .orElseThrow(()-> new NotFoundException("Store not found"));
         shipper.setAccount(account);
@@ -88,7 +94,12 @@ public class ShipperService {
         Shipper shipper = shipperRepository.findById(userDetails.getId()).orElseThrow(null);
         return new AuthResponse(accessToken, shipper.getName(),userDetails.getAuthorities());
     }
-    private UserDetailsImp getUserDetail(){
-        return (UserDetailsImp) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    private UserDto getUserDetail(){
+        return (UserDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+    public List<ShipperDto> getAllShipper(){
+        Long storeId = managerRepository.findStoreIdByManagerId(getUserDetail()
+                .getId()).orElseThrow(()-> new NotFoundException("Store not found"));
+        return shipperRepository.findAllByStoreId(storeId);
     }
 }

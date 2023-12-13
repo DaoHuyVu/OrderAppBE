@@ -48,7 +48,7 @@ public class ManagerService {
             String name,
             String phone,
             Long storeId,
-            Integer salary,
+            String salary,
             LocalDate dateOfBirth,
             String gender
     ){
@@ -71,7 +71,6 @@ public class ManagerService {
 
         manager.setAccount(account);
         manager.setStore(storeRepository.getReferenceById(storeId));
-
 
         accountRoleRepository.save(accountRole);
         return managerRepository.save(manager).toDto();

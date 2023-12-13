@@ -17,9 +17,9 @@ public abstract class Staff {
     protected String name;
     @Column(name = "phone_number")
     protected String phoneNumber;
-    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "DD-MM-YYYY")
+    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
     protected LocalDate dateOfBirth;
-    protected Integer salary;
+    protected String salary;
     @Enumerated(value = EnumType.STRING)
     protected Gender gender;
 }

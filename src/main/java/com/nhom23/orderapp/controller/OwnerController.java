@@ -8,8 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 @RestController
 @RequestMapping("/api/owner")
 public class OwnerController {
@@ -29,11 +32,17 @@ public class OwnerController {
             @RequestParam("storeId") String storeId
     ){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        Locale locale = new Locale("vi","VN");
+        NumberFormat numberFormat = NumberFormat.getCurrencyInstance(locale);
         return new ResponseEntity<>(managerService.addManagerAccount(
-                email, password, name, phone, Long.valueOf(storeId),Integer.valueOf(salary), LocalDate.parse(dateOfBirth,formatter), gender),
+                email, password, name, phone,
+                Long.valueOf(storeId),
+                numberFormat.format(Double.valueOf(salary)),
+                LocalDate.parse(dateOfBirth,formatter),
+                gender),
                 HttpStatus.CREATED);
     }
-    @PostMapping("")
+    @PostMapping("login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
         return ResponseEntity.ok().body(ownerService.login(loginRequest));
     }

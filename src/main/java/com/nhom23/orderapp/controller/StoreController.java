@@ -32,6 +32,10 @@ public class StoreController {
                         LocalTime.parse(closingTime)),
                 HttpStatus.CREATED);
     }
+    @GetMapping("store")
+    public ResponseEntity<?> getAllStore(){
+        return ResponseEntity.ok().body(service.getAllStore());
+    }
     @GetMapping("store/{id}")
     public ResponseEntity<?> getStore(@PathVariable Long id){
         return ResponseEntity.ok().body(service.getStore(id));

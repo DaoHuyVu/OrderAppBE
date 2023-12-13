@@ -4,11 +4,8 @@ import com.nhom23.orderapp.model.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +16,7 @@ public class ShipperDto implements Serializable {
     private String email;
     private String phone;
     private LocalDate dateOfBirth;
-    private Integer salary;
+    private String salary;
     private Gender gender;
 
 }

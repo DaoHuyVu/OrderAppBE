@@ -1,6 +1,7 @@
 package com.nhom23.orderapp.service;
 
 import com.nhom23.orderapp.dto.OrderItemDto;
+import com.nhom23.orderapp.dto.UserDto;
 import com.nhom23.orderapp.exception.NotFoundException;
 import com.nhom23.orderapp.model.MenuItem;
 import com.nhom23.orderapp.model.OrderItem;
@@ -32,9 +33,8 @@ public class CartService {
     private OrderItemRepository orderItemRepository;
     @Transactional()
     public OrderItemDto addItem(Long itemId,Integer quantity){
-        UserDetailsImp user = getUserDetails();
         Optional<OrderItemDto> existingItemOptional
-                = orderItemRepository.findByItemIdAndCustomerId(itemId,user.getId());
+                = orderItemRepository.findByItemIdAndCustomerId(itemId,getUserDetails().getId());
         if(existingItemOptional.isPresent()){
             OrderItemDto existingItem = existingItemOptional.get();
             int newQuantity = existingItem.getQuantity() + quantity;
@@ -43,34 +43,31 @@ public class CartService {
         MenuItem menuItem = menuRepository.getReferenceById(itemId);
         OrderItem orderItem = new OrderItem();
         orderItem.setCustomer(
-                customerRepository.getReferenceById(user.getId())
+                customerRepository.getReferenceById(getUserDetails().getId())
         );
         orderItem.setItem(menuItem);
         orderItem.setQuantity(quantity);
         return orderItemRepository.save(orderItem).toItemDto();
     }
     public List<OrderItemDto> getAllCartItem(){
-        UserDetailsImp user = getUserDetails();
-        return orderItemRepository.findByEmail(user.getEmail())
+        return orderItemRepository.findByEmail(getUserDetails().getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
     @Transactional
     public OrderItemDto modifyQuantity(Long id,Integer quantity){
-        UserDetailsImp user = getUserDetails();
-        orderItemRepository.updateQuantity(id,user.getId(),quantity);
-        return orderItemRepository.getItemDto(id,user.getId())
+        orderItemRepository.updateQuantity(id,getUserDetails().getId(),quantity);
+        return orderItemRepository.getItemDto(id,getUserDetails().getId())
                 .orElseThrow(() -> new NotFoundException("Order item not found"));
     }
     @Transactional
     public OrderItemDto deleteItem(Long id){
-        UserDetailsImp user = getUserDetails();
-        OrderItemDto item = orderItemRepository.findByIdAndCustomerId(id, user.getId())
-                .orElseThrow(() ->new NotFoundException("Order item not found"));
+        OrderItemDto item = orderItemRepository.findByIdAndCustomerId(id, getUserDetails().getId())
+                .orElseThrow(() -> new NotFoundException("Order item not found"));
         orderItemRepository.deleteById(id);
         return item;
     }
-    private UserDetailsImp getUserDetails(){
-        return (UserDetailsImp) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    private UserDto getUserDetails(){
+        return (UserDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
 }

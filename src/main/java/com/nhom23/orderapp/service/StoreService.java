@@ -13,6 +13,7 @@ import java.time.DateTimeException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,5 +30,8 @@ public class StoreService {
     }
     public Store getStore(Long id){
         return storeRepository.findById(id).orElseThrow(() -> new NotFoundException("Store not found"));
+    }
+    public List<Store> getAllStore(){
+        return storeRepository.findAll();
     }
 }

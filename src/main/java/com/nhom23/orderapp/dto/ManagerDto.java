@@ -18,7 +18,7 @@ public class ManagerDto implements Serializable {
     private String email;
     private String phone;
     private LocalDate dateOfBirth;
-    private Integer salary;
+    private String salary;
     private Gender gender;
 
 }
