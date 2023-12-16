@@ -9,12 +9,13 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 @Setter
+@AllArgsConstructor
 public class OrderDetailsDto {
     private Long id;
     private String phone;
@@ -22,7 +23,7 @@ public class OrderDetailsDto {
     private List<OrderItemDto> orderItemDtoList;
     private Double price;
     private String name;
-    private LocalDateTime createdAt;
+    private String createdAt;
     private OrderStatus status;
     private Address location;
 
@@ -32,7 +33,8 @@ public class OrderDetailsDto {
         this.address = address;
         this.price = price;
         this.name = name;
-        this.createdAt = createdAt;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        this.createdAt = formatter.format(createdAt);
         this.status = status;
         this.location = location;
     }

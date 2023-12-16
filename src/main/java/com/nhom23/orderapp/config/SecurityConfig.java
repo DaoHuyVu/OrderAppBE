@@ -82,7 +82,8 @@ public class SecurityConfig {
                         "/api/manager/login",
                         "/api/shipper/login",
                         "/api/owner/**",
-                        "/api/store/**")
+                        "/api/store/**",
+                        "/ManagerDashboard")
                 .authorizeHttpRequests(auth ->
                         auth.anyRequest().permitAll())
                 .cors(AbstractHttpConfigurer::disable)

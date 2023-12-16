@@ -64,7 +64,7 @@ public class OrderDetailsService {
         OrderDetail od = orderDetailsRepository.save(orderDetail);
         return new OrderDetailsDto(
                 od.getId(),phone,address,list,price,userName,
-                localDateTime,OrderStatus.CREATED,storeDto.getAddress()
+                localDateTime.toString(),OrderStatus.CREATED,storeDto.getAddress()
         );
     }
     public List<OrderDetailsDto> getAllOrder(){

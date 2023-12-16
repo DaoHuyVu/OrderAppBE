@@ -6,6 +6,7 @@ import com.nhom23.orderapp.service.OwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.NumberFormat;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-@RestController
+@Controller
 @RequestMapping("/api/owner")
 public class OwnerController {
     @Autowired
@@ -32,8 +33,7 @@ public class OwnerController {
             @RequestParam("storeId") String storeId
     ){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        Locale locale = new Locale("vi","VN");
-        NumberFormat numberFormat = NumberFormat.getCurrencyInstance(locale);
+        NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
         return new ResponseEntity<>(managerService.addManagerAccount(
                 email, password, name, phone,
                 Long.valueOf(storeId),
@@ -42,8 +42,25 @@ public class OwnerController {
                 gender),
                 HttpStatus.CREATED);
     }
-    @PostMapping("login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
-        return ResponseEntity.ok().body(ownerService.login(loginRequest));
+//    @PostMapping("login")
+//    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
+//        return ResponseEntity.ok().body(ownerService.login(loginRequest));
+//    }
+    @PostMapping("/login")
+    public String login(@RequestParam String userName,@RequestParam String password){
+        return "redirect:/resources/templates/ManagerDashboard";
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

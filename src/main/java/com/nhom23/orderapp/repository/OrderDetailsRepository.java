@@ -26,7 +26,7 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetail,Long> 
             from OrderDetail od
             join Customer c on c.id = od.customer.id
             join Store s on od.store.id = s.id
-            where od.shipper.id = :id
+            where od.shipper.id = :id and od.status = DELIVERING
             """)
     List<OrderDetailsDto> findAllByShipperId(Long id);
     @Query("""
