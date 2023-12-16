@@ -1,6 +1,7 @@
 package com.nhom23.orderapp.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nhom23.orderapp.dto.StoreDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,5 +24,7 @@ public class Store {
     private LocalTime openingTime;
     @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "HH:mm")
     private LocalTime closingTime;
-
+    public StoreDto toDto(){
+        return new StoreDto(id,address);
+    }
 }

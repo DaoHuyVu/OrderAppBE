@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Store Management System</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+    <h1>Quản lý chi nhánh</h1>
+    <hr>
+    <h2>Lưu chi nhánh</h2>
+    <form action="#" th:action="@{/saveStore}" th:object="${store}" method="POST">
+        <input type="text" th:field="*{city}" placeholder="Thành phố" class="form-control mb-4 col-4">
+        <input type="text" th:field="*{district}" placeholder="Quận" class="form-control mb-4 col-4">
+        <input type="text" th:field="*{street}" placeholder="Đường" class="form-control mb-4 col-4">
+        <input type="time" th:field="*{closing_time}" class="form-control mb-4 col-4">
+        <input type="time" th:field="*{opening_time}" placeholder="" class="form-control mb-4 col-4">
+        <button type="submit" class="btn btn-info col-2">Lưu</button>
+    </form>
+    <hr>
+    <a th:href = "@{/store}"> Trở về</a>
+</div>
+</body>
+</html>

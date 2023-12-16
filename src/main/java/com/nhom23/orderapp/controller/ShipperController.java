@@ -25,6 +25,14 @@ public class ShipperController {
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
         return ResponseEntity.ok().body(shipperService.login(loginRequest));
     }
+    @PostMapping("/order/{id}")
+    public ResponseEntity<?> informOrder(@PathVariable Long id,@RequestParam("isSucceed") String isSucceed){
+        return ResponseEntity.ok().body(shipperService.informOrder(id,Boolean.valueOf(isSucceed)));
+    }
+    @GetMapping("order")
+    public ResponseEntity<?> getAllOrder(){
+        return ResponseEntity.ok().body(shipperService.getAllOrder());
+    }
     @PostMapping("")
     public ResponseEntity<?> getAllShipper(){
         return ResponseEntity.ok().body(shipperService.getAllShipper());

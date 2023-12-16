@@ -45,8 +45,7 @@ public class ManagerController {
             @RequestParam("gender")String gender
     ) throws ParseException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        Locale locale = new Locale("vi","VN");
-        NumberFormat numberFormat = DecimalFormat.getCurrencyInstance(locale);
+        NumberFormat numberFormat = DecimalFormat.getCurrencyInstance();
         return new ResponseEntity<>(shipperService.addShipper(
                 email, password, name, phone, numberFormat.format(Double.valueOf(salary)), LocalDate.parse(dateOfBirth,formatter), gender),
                 HttpStatus.CREATED);

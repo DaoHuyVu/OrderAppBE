@@ -17,11 +17,11 @@ public interface OrderItemRepository extends JpaRepository<OrderItem,Long> {
             on a.id = ot.customer.id
             join MenuItem i
             on i.id = ot.item.id
-            where a.email = :email
+            where a.email = :email and ot.orderDetail.id is null
             """)
     Optional<List<OrderItemDto>> findByEmail(String email);
     @Query("""
-            UPDATE OrderItem ot SET ot.quantity = :quantity 
+            UPDATE OrderItem ot SET ot.quantity = :quantity
             where ot.id = :id and ot.customer.id = :customerId
             """)
     @Modifying(clearAutomatically = true,flushAutomatically = true)
@@ -39,9 +39,9 @@ public interface OrderItemRepository extends JpaRepository<OrderItem,Long> {
             from OrderItem ot
             join MenuItem i
             on i.id = ot.item.id
-            where i.id = :itemId and ot.customer.id = :customerId
+            where i.id = :itemId and ot.customer.id = :customerId and ot.orderDetail.id is null
             """)
-    Optional<OrderItemDto> findByItemIdAndCustomerId(Long itemId,Long customerId);
+    Optional<OrderItemDto> findByItemIdAndCustomerIdAndNotYetBeIncludedInOrderDetail(Long itemId, Long customerId);
 
     @Query("""
             SELECT new com.nhom23.orderapp.dto.OrderItemDto(ot.id,i.name,ot.quantity,i.price,i.imageUrl)
@@ -51,4 +51,12 @@ public interface OrderItemRepository extends JpaRepository<OrderItem,Long> {
             where ot.id = :id and ot.customer.id = :customerId
             """)
     Optional<OrderItemDto> findByIdAndCustomerId(Long id,Long customerId);
+    @Query("""
+             SELECT new com.nhom23.orderapp.dto.OrderItemDto(ot.id,i.name,ot.quantity,i.price,i.imageUrl)
+            from OrderItem ot
+            join MenuItem i
+            on i.id = ot.item.id
+            where ot.orderDetail.id = :id
+            """)
+    List<OrderItemDto> findByOrderDetailsId(Long id);
 }

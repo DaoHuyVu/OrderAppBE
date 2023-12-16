@@ -22,11 +22,12 @@ public class OrderDetail {
     private Shipper shipper;
     @ManyToOne(fetch = FetchType.LAZY)
     private Store store;
-    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "DD/MM/YYYY HH:mm:ss",timezone = "UTC+7")
+    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "DD/MM/YYYY HH:mm:ss",timezone = "UTC")
     private LocalDateTime createdAt;
-    private String phoneNumber;
+    private String phone;
     private String address;
     private Double price;
     @Enumerated(value = EnumType.STRING)
     private OrderStatus status;
+
 }

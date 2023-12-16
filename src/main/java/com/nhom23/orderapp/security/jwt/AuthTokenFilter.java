@@ -47,6 +47,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             logger.info("{}", authentication);
+            logger.error("{}",authentication.getPrincipal().toString());
             filterChain.doFilter(request,response);
         }
 

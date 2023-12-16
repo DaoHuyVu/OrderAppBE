@@ -8,4 +8,9 @@ import lombok.Getter;
 public class UserDto {
     private Long id;
     private String email;
+
+    @Override
+    public String toString() {
+        return id + " " + email;
+    }
 }

@@ -8,17 +8,11 @@ import com.nhom23.orderapp.model.OrderItem;
 import com.nhom23.orderapp.repository.CustomerRepository;
 import com.nhom23.orderapp.repository.MenuRepository;
 import com.nhom23.orderapp.repository.OrderItemRepository;
-import com.nhom23.orderapp.security.service.UserDetailsImp;
-import com.nhom23.orderapp.security.service.UserDetailsServiceImp;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +28,7 @@ public class CartService {
     @Transactional()
     public OrderItemDto addItem(Long itemId,Integer quantity){
         Optional<OrderItemDto> existingItemOptional
-                = orderItemRepository.findByItemIdAndCustomerId(itemId,getUserDetails().getId());
+                = orderItemRepository.findByItemIdAndCustomerIdAndNotYetBeIncludedInOrderDetail(itemId,getUserDetails().getId());
         if(existingItemOptional.isPresent()){
             OrderItemDto existingItem = existingItemOptional.get();
             int newQuantity = existingItem.getQuantity() + quantity;

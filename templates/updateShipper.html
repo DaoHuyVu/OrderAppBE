@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Shipper Management System</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Quản lý nhân viên ship</h1>
+        <hr>
+        <h2>Cập nhật nhân viên ship</h2>
+
+        <form action="#" th:action="@{/saveShipper}" th:object="${shipper}" method="POST">
+            <input type="hidden" th:field="*{id}">
+            <input type="text" th:field="*{name}" placeholder="Tên" class="form-control mb-4 col-4">
+            <input type="text" th:field="*{gender}" placeholder="Giới tính" class="form-control mb-4 col-4">
+            <label>Giới tính:</label>
+            <div th:each="gender : ${genders}">
+        <input type="radio" th:id="${'gender_' + #strings.toLowerCase(gender.name())}" 
+               th:name="gender" th:value="${gender.name()}">
+        <label th:for="${'gender_' + #strings.toLowerCase(gender.name())}" th:text="${gender.name()}"></label>
+        
+    </div>
+            <input type="text" th:field="*{phone_number}" placeholder="Số điện thoại" class="form-control mb-4 col-4">
+            <input type="text" th:field="*{salary}" placeholder="Lương" class="form-control mb-4 col-4">
+            <input type="date" th:field="*{date_of_birth}" placeholder="Ngày tháng năm sinh"
+                class="form-control mb-4 col-4">
+            <button type="submit" class="btn btn-info col-2">Lưu</button>
+        </form>
+        <hr>
+        <a th:href="@{/shipper}"> Trở về</a>
+    </div>
+</body>
+
+</html>
