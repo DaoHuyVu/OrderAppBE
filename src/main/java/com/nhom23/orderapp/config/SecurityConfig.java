@@ -82,12 +82,12 @@ public class SecurityConfig {
                         "/api/manager/login",
                         "/api/shipper/login",
                         "/api/owner/**",
-                        "/api/store/**",
-                        "/ManagerDashboard")
+                        "/admin/**")
                 .authorizeHttpRequests(auth ->
                         auth.anyRequest().permitAll())
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+                .authenticationManager(authenticationManager())
                 .exceptionHandling(exception ->
                         exception
                                 .authenticationEntryPoint(authenticationEntryPoint))

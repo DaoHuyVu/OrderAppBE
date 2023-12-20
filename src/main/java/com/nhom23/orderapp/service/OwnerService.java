@@ -1,5 +1,14 @@
 package com.nhom23.orderapp.service;
 
+import com.nhom23.orderapp.dto.ManagerDto;
+import com.nhom23.orderapp.dto.OrderItemDto;
+import com.nhom23.orderapp.dto.ShipperDto;
+import com.nhom23.orderapp.model.MenuItem;
+import com.nhom23.orderapp.model.Store;
+import com.nhom23.orderapp.repository.ManagerRepository;
+import com.nhom23.orderapp.repository.MenuRepository;
+import com.nhom23.orderapp.repository.ShipperRepository;
+import com.nhom23.orderapp.repository.StoreRepository;
 import com.nhom23.orderapp.request.LoginRequest;
 import com.nhom23.orderapp.response.AuthResponse;
 import com.nhom23.orderapp.security.jwt.JwtUtil;
@@ -11,22 +20,44 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 public class OwnerService {
     @Autowired
+    private ManagerRepository managerRepository;
+    @Autowired
+    private StoreRepository storeRepository;
+    @Autowired
+    private MenuRepository menuRepository;
+    @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private ShipperRepository shipperRepository;
     @Autowired
     private JwtUtil jwtUtil;
     @Transactional
-    public AuthResponse login(LoginRequest loginRequest){
+    public AuthResponse login(String userName,String password){
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUserName(),
-                        loginRequest.getPassword());
+                        userName,
+                        password);
         Authentication authentication = authenticationManager.authenticate(token);
         UserDetailsImp userDetails = (UserDetailsImp) authentication.getPrincipal();
         String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername());
         return new AuthResponse(accessToken,userDetails.getUsername(),userDetails.getRoles());
+    }
+    public List<ShipperDto> getAllShipper(){
+        return shipperRepository.findAllShipper();
+    }
+    public List<ManagerDto> getAllManager(){
+        return managerRepository.findAllManager();
+    }
+    public List<MenuItem> getAllItem() {
+        return menuRepository.findAll();
+    }
+    public List<Store> getAllStore(){
+        return storeRepository.findAll();
     }
 }

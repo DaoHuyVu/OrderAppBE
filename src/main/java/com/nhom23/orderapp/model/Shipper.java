@@ -30,7 +30,7 @@ public class Shipper extends Staff{
     }
     public ShipperDto toDto(){
         return new ShipperDto(
-                id,name,account.getEmail(),phoneNumber,dateOfBirth,salary,gender
+                id,name,account.getEmail(),phoneNumber,dateOfBirth,salary,gender,store.getAddress()
         );
     }
 }

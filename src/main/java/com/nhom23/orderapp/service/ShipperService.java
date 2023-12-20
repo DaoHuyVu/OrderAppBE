@@ -11,6 +11,7 @@ import com.nhom23.orderapp.request.LoginRequest;
 import com.nhom23.orderapp.response.AuthResponse;
 import com.nhom23.orderapp.security.jwt.JwtUtil;
 import com.nhom23.orderapp.security.service.UserDetailsImp;
+import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -58,7 +59,8 @@ public class ShipperService {
             String phone,
             String salary,
             LocalDate dateOfBirth,
-            String gender
+            String gender,
+            Long storeId
     ){
         if(accountRepository.existsByEmail(email)){
             throw new AlreadyExistException("This email is already exist");
@@ -77,9 +79,6 @@ public class ShipperService {
         Shipper shipper = new Shipper(
             name,phone,dateOfBirth,salary,Gender.valueOf(gender)
         );
-        UserDto user = getUserDetail();
-        Long storeId = managerRepository.findStoreIdByManagerId(user.getId())
-                .orElseThrow(()-> new NotFoundException("Store not found"));
         shipper.setAccount(account);
         shipper.setStore(storeRepository.getReferenceById(storeId));
 
@@ -114,11 +113,13 @@ public class ShipperService {
         return orderDetails;
     }
     @Transactional
-    public Map<Long,Boolean> informOrder(Long id,Boolean isSucceed){
+    public Map<Long,String> informOrder(Long id,Boolean isSucceed){
         OrderDetail orderDetail = orderDetailsRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found"));
-        if(isSucceed)
+        if(isSucceed){
             orderDetail.setStatus(OrderStatus.DELIVERED);
+            return Collections.singletonMap(id, OrderStatus.DELIVERED.name());
+        }
         else orderDetail.setStatus(OrderStatus.CANCELLED);
-        return Collections.singletonMap(id,isSucceed);
+        return Collections.singletonMap(id,OrderStatus.CANCELLED.name());
     }
 }

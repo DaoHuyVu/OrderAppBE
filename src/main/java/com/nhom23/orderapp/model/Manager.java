@@ -29,7 +29,7 @@ public class Manager extends Staff{
     }
     public ManagerDto toDto(){
         return new ManagerDto(
-                id,name,account.getEmail(),phoneNumber,dateOfBirth,salary,gender
+                id,name,account.getEmail(),phoneNumber,dateOfBirth,salary,gender,store.getAddress()
         );
     }
 }

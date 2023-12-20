@@ -27,10 +27,14 @@ public class UserDetailsServiceImp implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         List<Tuple> tuples = repository.findAccountAndRole(email)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        List<ERole> roles = tuples.stream().map(tuple ->(ERole) tuple.get(3)).toList();
-        Long id = (Long) tuples.get(0).get(0);
-        String password = (String) tuples.get(0).get(1);
-        Boolean isEnable = (Boolean) tuples.get(0).get(2);
-        return new UserDetailsImp(email,id,password,isEnable,roles);
+        // Exception is not thrown even when the tuple is empty
+       if(!tuples.isEmpty()){
+           List<ERole> roles = tuples.stream().map(tuple ->(ERole) tuple.get(3)).toList();
+           Long id = (Long) tuples.get(0).get(0);
+           String password = (String) tuples.get(0).get(1);
+           Boolean isEnable = (Boolean) tuples.get(0).get(2);
+           return new UserDetailsImp(email,id,password,isEnable,roles);
+       }
+       else throw new NotFoundException("User not found");
     }
 }

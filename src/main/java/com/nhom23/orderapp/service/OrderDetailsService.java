@@ -49,7 +49,7 @@ public class OrderDetailsService {
         orderDetail.setCustomer(customerRepository.getReferenceById(getUserDetails().getId()));
         //UTC Timezone without nano second display
         LocalDateTime localDateTime = LocalDateTime.ofInstant(
-                Instant.now(), ZoneId.of("UTC")).withNano(0);
+                Instant.now(), ZoneId.of("UTC+7")).withNano(0);
         orderDetail.setCreatedAt(localDateTime);
         orderDetail.setAddress(address);
         orderDetail.setPrice(price);

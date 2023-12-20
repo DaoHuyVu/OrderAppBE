@@ -16,22 +16,6 @@ import java.time.LocalTime;
 public class StoreController {
     @Autowired
     private StoreService service;
-    @PostMapping("store")
-    public ResponseEntity<?> addStore(
-            @RequestParam("city") String city,
-            @RequestParam("district") String district,
-            @RequestParam("street") String street,
-            @RequestParam("opening_time") String openingTime,
-            @RequestParam("closing_time") String closingTime
-    ){
-        Address address = new Address(city,district,street);
-        return new ResponseEntity<>(
-                service.addStore(
-                        address,
-                        LocalTime.parse(openingTime),
-                        LocalTime.parse(closingTime)),
-                HttpStatus.CREATED);
-    }
     @GetMapping("store")
     public ResponseEntity<?> getAllStore(){
         return ResponseEntity.ok().body(service.getAllStore());

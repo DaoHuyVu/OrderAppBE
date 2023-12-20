@@ -34,21 +34,6 @@ public class ManagerController {
         AuthResponse authResponse = managerService.login(loginRequest);
         return new ResponseEntity<>(authResponse,HttpStatus.OK);
     }
-    @PostMapping("shipper")
-    public ResponseEntity<?> addShipper(
-            @RequestParam("email") String email,
-            @RequestParam("password")String password,
-            @RequestParam("name")String name,
-            @RequestParam("phone")String phone,
-            @RequestParam("salary")String salary,
-            @RequestParam("birthday")String dateOfBirth,
-            @RequestParam("gender")String gender
-    ) throws ParseException {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        NumberFormat numberFormat = DecimalFormat.getCurrencyInstance();
-        return new ResponseEntity<>(shipperService.addShipper(
-                email, password, name, phone, numberFormat.format(Double.valueOf(salary)), LocalDate.parse(dateOfBirth,formatter), gender),
-                HttpStatus.CREATED);
-    }
+
 
 }

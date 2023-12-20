@@ -9,6 +9,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -34,7 +36,7 @@ public class OrderDetailsDto {
         this.price = price;
         this.name = name;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        this.createdAt = formatter.format(createdAt);
+        this.createdAt = createdAt.format(formatter);
         this.status = status;
         this.location = location;
     }
