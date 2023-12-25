@@ -73,8 +73,8 @@ public class AuthService {
         Role role = roleRepository.findByRole(ERole.ROLE_USER);
 
         AccountRole accountRole = new AccountRole();
-        account.addRole(accountRole);
-        role.addRole(accountRole);
+        accountRole.setRole(role);
+        accountRole.setAccount(account);
 
         accountRepository.save(account);
         accountRoleRepository.save(accountRole);

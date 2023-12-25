@@ -19,20 +19,10 @@ public class Account {
     private String password;
     private String email;
     private Boolean isEnable;
-    @OneToMany(mappedBy = "account",orphanRemoval = true,cascade = CascadeType.ALL)
-    private List<AccountRole> roles = new ArrayList<>();
 
     public Account(String email, String password) {
         this.email = email;
         this.password = password;
         isEnable = false;
-    }
-    public void addRole(AccountRole role){
-        roles.add(role);
-        role.setAccount(this);
-    }
-    public void removeRole(AccountRole role){
-        roles.remove(role);
-        role.setRole(null);
     }
 }

@@ -5,21 +5,15 @@ import com.nhom23.orderapp.request.SignUpRequest;
 import com.nhom23.orderapp.response.AuthResponse;
 import com.nhom23.orderapp.response.Response;
 import com.nhom23.orderapp.service.AuthService;
-import com.nhom23.orderapp.service.OwnerService;
+import com.nhom23.orderapp.service.AdminService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.awt.desktop.UserSessionEvent;
 
 @RestController
 @RequestMapping(AuthController.CLASS_MAPPING)
@@ -28,7 +22,7 @@ public class AuthController {
     @Autowired
     private AuthService authService;
     @Autowired
-    private OwnerService ownerService;
+    private AdminService adminService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     @PostMapping("/login")

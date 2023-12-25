@@ -19,7 +19,7 @@ public abstract class Staff {
     protected String phoneNumber;
     @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
     protected LocalDate dateOfBirth;
-    protected String salary;
+    protected Double salary;
     @Enumerated(value = EnumType.STRING)
     protected Gender gender;
 }

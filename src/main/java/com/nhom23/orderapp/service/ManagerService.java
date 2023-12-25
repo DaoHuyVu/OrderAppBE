@@ -2,6 +2,7 @@ package com.nhom23.orderapp.service;
 
 import com.nhom23.orderapp.dto.ManagerDto;
 import com.nhom23.orderapp.exception.AlreadyExistException;
+import com.nhom23.orderapp.exception.NotFoundException;
 import com.nhom23.orderapp.model.*;
 import com.nhom23.orderapp.repository.*;
 import com.nhom23.orderapp.request.LoginRequest;
@@ -15,8 +16,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -45,7 +50,7 @@ public class ManagerService {
             String name,
             String phone,
             Long storeId,
-            String salary,
+            Double salary,
             LocalDate dateOfBirth,
             String gender
     ){
@@ -54,17 +59,16 @@ public class ManagerService {
         }
         Account account = new Account(email,encoder.encode(password));
         account.setIsEnable(true);
-        AccountRole accountRole = new AccountRole();
-        Role role = roleRepository.findByRole(ERole.ROLE_MANAGER);
-
-        role.addRole(accountRole);
-        account.addRole(accountRole);
         accountRepository.save(account);
 
-        //Create shipper instance
+        AccountRole accountRole = new AccountRole();
+
         Manager manager = new Manager(
                 name,phone,dateOfBirth,salary,Gender.valueOf(gender)
         );
+        Role role = roleRepository.findByRole(ERole.ROLE_MANAGER);
+        accountRole.setAccount(account);
+        accountRole.setRole(role);
 
         manager.setAccount(account);
         manager.setStore(storeRepository.getReferenceById(storeId));
@@ -82,5 +86,37 @@ public class ManagerService {
         String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername());
         Manager manager = managerRepository.findById(userDetails.getId()).orElseThrow(null);
         return new AuthResponse(accessToken, manager.getName(),userDetails.getRoles());
+    }
+    public List<ManagerDto> getAllManager(){
+        return managerRepository.findAllManager();
+    }
+    @Transactional
+    public ManagerDto deleteManager(Long id){
+        return managerRepository.deleteManager(id);
+    }
+    @Transactional
+    public ManagerDto updateManager(
+            Long id,
+            String email,
+            String name,
+            String phone,
+            String salary,
+            String dateOfBirth,
+            String gender
+    ){
+        Manager manager = managerRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Manager not found"));
+        if(accountRepository.existsByEmail(email))
+            throw new AlreadyExistException("Email already exists");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
+        numberFormat.setMaximumFractionDigits(0);
+        manager.setName(name);
+        manager.setSalary(Double.valueOf(salary));
+        manager.setPhoneNumber(phone);
+        manager.setDateOfBirth(LocalDate.parse(dateOfBirth,formatter));
+        manager.setGender(Gender.valueOf(gender));
+        manager.getAccount().setEmail(email);
+        return managerRepository.save(manager).toDto();
     }
 }

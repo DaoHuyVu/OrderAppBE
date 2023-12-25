@@ -31,7 +31,27 @@ public class StoreService {
     public Store getStore(Long id){
         return storeRepository.findById(id).orElseThrow(() -> new NotFoundException("Store not found"));
     }
-    public List<Store> getAllStore(){
-        return storeRepository.findAll();
+    public List<Store> getAllStore(Boolean isManaged){
+        if(isManaged == null || isManaged){
+            return storeRepository.findAll();
+        }
+        else return storeRepository.findAllUnmanaged();
+    }
+    @Transactional
+    public Store deleteStore(Long id){
+        return storeRepository.deleteByStoreId(id);
+    }
+    @Transactional
+    public Store updateStore(
+            Long id,
+            Address address,
+            LocalTime openingTime,
+            LocalTime closingTime
+    ){
+        Store store = storeRepository.findById(id).orElseThrow(() -> new NotFoundException("Store not found"));
+        store.setAddress(address);
+        store.setOpeningTime(openingTime);
+        store.setClosingTime(closingTime);
+        return store;
     }
 }

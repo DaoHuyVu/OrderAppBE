@@ -24,7 +24,7 @@ public class Manager extends Staff{
     private Account account;
     @OneToOne(fetch = FetchType.LAZY)
     private Store store;
-    public Manager(String name, String phoneNumber, LocalDate dateOfBirth, String salary, Gender gender) {
+    public Manager(String name, String phoneNumber, LocalDate dateOfBirth, Double salary, Gender gender) {
         super(name, phoneNumber, dateOfBirth, salary, gender);
     }
     public ManagerDto toDto(){

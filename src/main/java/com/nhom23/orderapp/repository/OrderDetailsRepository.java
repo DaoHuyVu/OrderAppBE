@@ -9,7 +9,8 @@ import com.nhom23.orderapp.model.Address;
 import java.util.List;
 import java.util.Optional;
 
-public interface OrderDetailsRepository extends JpaRepository<OrderDetail,Long> {
+public interface OrderDetailsRepository extends JpaRepository<OrderDetail,Long>,CustomOrderDetailsRepository {
+    //Find all orders of a store that hasn't been delivered (shipperId is null)
     @Query("""
             SELECT new com.nhom23.orderapp.dto.OrderDetailsDto
             (od.id,od.phone,od.address,od.price,c.userName,od.createdAt,od.status,new com.nhom23.orderapp.model.Address(s.address.city,s.address.district,s.address.street))
@@ -47,4 +48,10 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetail,Long> 
             where c.id = :id
             """)
     Optional<List<OrderDetailsDto>> findAllByCustomerId(Long id);
+
+    //Find all orders of a store
+    @Query("""
+            Select o.id from OrderDetail o where o.store.id = :id
+            """)
+    List<Long> findAllOfAStore(Long id);
 }

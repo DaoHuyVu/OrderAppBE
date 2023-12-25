@@ -1,5 +1,6 @@
 package com.nhom23.orderapp.config;
 
+import com.google.gson.Gson;
 import com.nhom23.orderapp.security.jwt.AccessDeniedExceptionFilter;
 import com.nhom23.orderapp.security.jwt.AuthTokenFilter;
 import com.nhom23.orderapp.security.service.UserDetailsServiceImp;
@@ -29,6 +30,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
         securedEnabled = true
 )
 public class SecurityConfig {
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -81,8 +83,7 @@ public class SecurityConfig {
                         "api/auth/**",
                         "/api/manager/login",
                         "/api/shipper/login",
-                        "/api/owner/**",
-                        "/admin/**")
+                        "/admin/login")
                 .authorizeHttpRequests(auth ->
                         auth.anyRequest().permitAll())
                 .cors(AbstractHttpConfigurer::disable)

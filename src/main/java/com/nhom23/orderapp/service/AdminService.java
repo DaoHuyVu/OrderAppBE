@@ -1,7 +1,6 @@
 package com.nhom23.orderapp.service;
 
 import com.nhom23.orderapp.dto.ManagerDto;
-import com.nhom23.orderapp.dto.OrderItemDto;
 import com.nhom23.orderapp.dto.ShipperDto;
 import com.nhom23.orderapp.model.MenuItem;
 import com.nhom23.orderapp.model.Store;
@@ -9,7 +8,6 @@ import com.nhom23.orderapp.repository.ManagerRepository;
 import com.nhom23.orderapp.repository.MenuRepository;
 import com.nhom23.orderapp.repository.ShipperRepository;
 import com.nhom23.orderapp.repository.StoreRepository;
-import com.nhom23.orderapp.request.LoginRequest;
 import com.nhom23.orderapp.response.AuthResponse;
 import com.nhom23.orderapp.security.jwt.JwtUtil;
 import com.nhom23.orderapp.security.service.UserDetailsImp;
@@ -24,7 +22,7 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
-public class OwnerService {
+public class AdminService {
     @Autowired
     private ManagerRepository managerRepository;
     @Autowired
@@ -47,17 +45,5 @@ public class OwnerService {
         UserDetailsImp userDetails = (UserDetailsImp) authentication.getPrincipal();
         String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername());
         return new AuthResponse(accessToken,userDetails.getUsername(),userDetails.getRoles());
-    }
-    public List<ShipperDto> getAllShipper(){
-        return shipperRepository.findAllShipper();
-    }
-    public List<ManagerDto> getAllManager(){
-        return managerRepository.findAllManager();
-    }
-    public List<MenuItem> getAllItem() {
-        return menuRepository.findAll();
-    }
-    public List<Store> getAllStore(){
-        return storeRepository.findAll();
     }
 }

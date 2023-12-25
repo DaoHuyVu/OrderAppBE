@@ -59,4 +59,9 @@ public interface OrderItemRepository extends JpaRepository<OrderItem,Long> {
             where ot.orderDetail.id = :id
             """)
     List<OrderItemDto> findByOrderDetailsId(Long id);
+    @Modifying
+    @Query("""
+            Delete from OrderItem o where o.orderDetail.id = :id
+            """)
+    void deleteByOrderDetailId(Long id);
 }

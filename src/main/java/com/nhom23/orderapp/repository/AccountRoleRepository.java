@@ -4,6 +4,7 @@ import com.nhom23.orderapp.model.AccountRole;
 import com.nhom23.orderapp.model.Role;
 import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import com.nhom23.orderapp.security.service.UserDetailsImp;
@@ -23,4 +24,9 @@ public interface AccountRoleRepository extends JpaRepository<AccountRole, Long> 
             where a.email = :email
             """)
     Optional<List<Tuple>> findAccountAndRole(String email);
+    @Query("""
+            Delete from AccountRole a where a.account.id = :id
+            """)
+    @Modifying
+    void deleteByAccountId(Long id);
 }

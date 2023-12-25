@@ -9,7 +9,7 @@ import com.nhom23.orderapp.model.Address;
 import java.util.List;
 
 @Repository
-public interface ShipperRepository extends JpaRepository<Shipper,Long> {
+public interface ShipperRepository extends JpaRepository<Shipper,Long>,CustomShipperRepository{
     @Query("""
             SELECT new com.nhom23.orderapp.dto.ShipperDto(
             s.id,s.name,a.email,s.phoneNumber,s.dateOfBirth,s.salary,s.gender,

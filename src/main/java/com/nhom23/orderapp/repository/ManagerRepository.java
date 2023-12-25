@@ -10,7 +10,7 @@ import javax.print.attribute.standard.MediaName;
 import java.util.List;
 import java.util.Optional;
 
-public interface ManagerRepository extends JpaRepository<Manager,Long> {
+public interface ManagerRepository extends JpaRepository<Manager,Long>,CustomManagerRepository{
     @Query("""
             SELECT m.store.id from Manager m where m.id = :managerId
             """)
@@ -24,4 +24,9 @@ public interface ManagerRepository extends JpaRepository<Manager,Long> {
             join Store store on store.id = s.store.id
             """)
     List<ManagerDto> findAllManager();
+    @Query("""
+            Select m.id from Manager m where m.store.id = :id
+            """)
+    Long findByStoreId(Long id);
+
 }

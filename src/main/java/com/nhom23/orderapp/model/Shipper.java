@@ -25,7 +25,7 @@ public class Shipper extends Staff{
     @ManyToOne(fetch = FetchType.LAZY)
     private Store store;
 
-    public Shipper(String name, String phoneNumber, LocalDate dateOfBirth, String salary, Gender gender) {
+    public Shipper(String name, String phoneNumber, LocalDate dateOfBirth, Double salary, Gender gender) {
         super(name, phoneNumber, dateOfBirth, salary, gender);
     }
     public ShipperDto toDto(){
@@ -33,4 +33,5 @@ public class Shipper extends Staff{
                 id,name,account.getEmail(),phoneNumber,dateOfBirth,salary,gender,store.getAddress()
         );
     }
+
 }

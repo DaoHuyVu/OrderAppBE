@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.swing.text.DateFormatter;
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -24,14 +25,14 @@ public class ShipperDto implements Serializable {
     private Gender gender;
     private Address address;
 
-    public ShipperDto(Long id, String name, String email, String phone, LocalDate dateOfBirth, String salary, Gender gender, Address address) {
+    public ShipperDto(Long id, String name, String email, String phone, LocalDate dateOfBirth, Double salary, Gender gender, Address address) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         this.dateOfBirth = formatter.format(dateOfBirth);
-        this.salary = salary;
+        this.salary = salary.toString();
         this.gender = gender;
         this.address = address;
     }

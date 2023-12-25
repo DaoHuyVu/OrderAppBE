@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
@@ -20,5 +21,16 @@ public class CategoryService {
     public Category getCategory(Long id){
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
+    }
+    @Transactional
+    public Category deleteCategory(Long id){
+        return categoryRepository.deleteCategory(id);
+    }
+    @Transactional
+    public Category updateCategory(Long id,String name,String imageUrl){
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
+        category.setName(name);
+        category.setImageUrl(imageUrl);
+        return category;
     }
 }

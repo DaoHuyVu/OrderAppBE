@@ -1,5 +1,6 @@
 package com.nhom23.orderapp.service;
 
+import com.nhom23.orderapp.dto.ManagerDto;
 import com.nhom23.orderapp.dto.OrderDetailsDto;
 import com.nhom23.orderapp.dto.ShipperDto;
 import com.nhom23.orderapp.dto.UserDto;
@@ -11,7 +12,6 @@ import com.nhom23.orderapp.request.LoginRequest;
 import com.nhom23.orderapp.response.AuthResponse;
 import com.nhom23.orderapp.security.jwt.JwtUtil;
 import com.nhom23.orderapp.security.service.UserDetailsImp;
-import org.hibernate.query.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +59,7 @@ public class ShipperService {
             String password,
             String name,
             String phone,
-            String salary,
+            Double salary,
             LocalDate dateOfBirth,
             String gender,
             Long storeId
@@ -71,8 +73,9 @@ public class ShipperService {
         AccountRole accountRole = new AccountRole();
         Role role = roleRepository.findByRole(ERole.ROLE_STAFF);
 
-        role.addRole(accountRole);
-        account.addRole(accountRole);
+        accountRole.setAccount(account);
+        accountRole.setRole(role);
+
         accountRepository.save(account);
 
         //Create shipper instance
@@ -101,7 +104,8 @@ public class ShipperService {
     private UserDto getUserDetail(){
         return (UserDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
-    public List<ShipperDto> getAllShipper(){
+    //Find all shipper of a store
+    public List<ShipperDto> getAllShipperOfStore(){
         Long storeId = managerRepository.findStoreIdByManagerId(getUserDetail()
                 .getId()).orElseThrow(()-> new NotFoundException("Store not found"));
         return shipperRepository.findAllByStoreId(storeId);
@@ -121,5 +125,38 @@ public class ShipperService {
         }
         else orderDetail.setStatus(OrderStatus.CANCELLED);
         return Collections.singletonMap(id,OrderStatus.CANCELLED.name());
+    }
+    public List<ShipperDto> getAllShipper(){
+        return shipperRepository.findAllShipper();
+    }
+    @Transactional
+    public ShipperDto deleteShipper(Long id){
+        return shipperRepository.deleteShipper(id);
+    }
+    @Transactional
+    public ShipperDto updateShipper(
+            Long id,
+            String email,
+            String name,
+            String phone,
+            String salary,
+            String dateOfBirth,
+            String gender
+    ){
+        Shipper shipper = shipperRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Shipper not found"));
+        if(accountRepository.existsByEmail(email))
+            throw new AlreadyExistException("Email already exists");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
+
+        numberFormat.setMaximumFractionDigits(0);
+        shipper.setName(name);
+        shipper.setSalary(Double.valueOf(salary));
+        shipper.setPhoneNumber(phone);
+        shipper.setDateOfBirth(LocalDate.parse(dateOfBirth,formatter));
+        shipper.setGender(Gender.valueOf(gender));
+        shipper.getAccount().setEmail(email);
+        return shipperRepository.save(shipper).toDto();
     }
 }

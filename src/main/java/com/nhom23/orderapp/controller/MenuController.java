@@ -19,7 +19,7 @@ public class MenuController {
     @Autowired
     private CategoryService categoryService;
     @GetMapping("/menu")
-    public ResponseEntity<?> getMenu(@RequestParam("category") String category){
+    public ResponseEntity<?> getMenu(@RequestParam(value = "category",required = false) String category){
         return ResponseEntity.ok().body(menuService.getMenu(category));
     }
     @GetMapping("/menu/{id}")
