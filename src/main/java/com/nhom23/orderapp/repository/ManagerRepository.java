@@ -17,7 +17,7 @@ public interface ManagerRepository extends JpaRepository<Manager,Long>,CustomMan
     Optional<Long> findStoreIdByManagerId(Long managerId);
     @Query("""
             SELECT new com.nhom23.orderapp.dto.ManagerDto(
-            s.id,s.name,a.email,s.phoneNumber,s.dateOfBirth,s.salary,s.gender,
+            s.id,s.name,a.email,s.phone,s.dateOfBirth,s.salary,s.gender,
             store.address)
             from Manager s join Account a
             on a.id = s.account.id

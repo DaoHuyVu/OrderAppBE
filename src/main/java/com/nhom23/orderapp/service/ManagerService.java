@@ -16,12 +16,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -76,14 +78,14 @@ public class ManagerService {
         accountRoleRepository.save(accountRole);
         return managerRepository.save(manager).toDto();
     }
-    public AuthResponse login(LoginRequest loginRequest){
+    public AuthResponse login(LoginRequest loginRequest,String url){
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUserName(),
                         loginRequest.getPassword());
         Authentication authentication = authenticationManager.authenticate(token);
         UserDetailsImp userDetails = (UserDetailsImp) authentication.getPrincipal();
-        String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername());
+        String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername(),url);
         Manager manager = managerRepository.findById(userDetails.getId()).orElseThrow(null);
         return new AuthResponse(accessToken, manager.getName(),userDetails.getRoles());
     }
@@ -106,17 +108,46 @@ public class ManagerService {
     ){
         Manager manager = managerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Manager not found"));
-        if(accountRepository.existsByEmail(email))
+        if(accountRepository.existsByEmail(email) && !email.equals(manager.getAccount().getEmail()))
             throw new AlreadyExistException("Email already exists");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
         numberFormat.setMaximumFractionDigits(0);
         manager.setName(name);
         manager.setSalary(Double.valueOf(salary));
-        manager.setPhoneNumber(phone);
+        manager.setPhone(phone);
         manager.setDateOfBirth(LocalDate.parse(dateOfBirth,formatter));
         manager.setGender(Gender.valueOf(gender));
         manager.getAccount().setEmail(email);
+        return managerRepository.save(manager).toDto();
+    }
+    @Transactional
+    public ManagerDto updateManager(Long id,Map<String,String> fields){
+        Manager manager = managerRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Manager not found"));
+        fields.forEach((key,value) -> {
+            if (key.equals("email")){
+                if(accountRepository.existsByEmail(value))
+                    throw new AlreadyExistException("Email already exist");
+                manager.getAccount().setEmail(value);
+            }
+            else {
+                Field field = ReflectionUtils.findField(Manager.class,key);
+                if(field != null){
+                    field.setAccessible(true);
+                    if(field.getType().getCanonicalName().equals(LocalDate.class.getCanonicalName())){
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                        LocalDate newValue = LocalDate.parse(value,formatter);
+                        ReflectionUtils.setField(field,manager,newValue);
+                    }
+                    else if(field.getType().getCanonicalName().equals(Double.class.getCanonicalName())){
+                        Double newValue = Double.valueOf(value);
+                        ReflectionUtils.setField(field,manager,newValue);
+                    }
+                    else ReflectionUtils.setField(field,manager,value);
+                }
+            }
+        });
         return managerRepository.save(manager).toDto();
     }
 }

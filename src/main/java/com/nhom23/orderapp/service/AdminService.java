@@ -36,14 +36,14 @@ public class AdminService {
     @Autowired
     private JwtUtil jwtUtil;
     @Transactional
-    public AuthResponse login(String userName,String password){
+    public AuthResponse login(String userName,String password,String url){
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(
                         userName,
                         password);
         Authentication authentication = authenticationManager.authenticate(token);
         UserDetailsImp userDetails = (UserDetailsImp) authentication.getPrincipal();
-        String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername());
+        String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername(),url);
         return new AuthResponse(accessToken,userDetails.getUsername(),userDetails.getRoles());
     }
 }

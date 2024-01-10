@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -30,8 +29,7 @@ public class Shipper extends Staff{
     }
     public ShipperDto toDto(){
         return new ShipperDto(
-                id,name,account.getEmail(),phoneNumber,dateOfBirth,salary,gender,store.getAddress()
+                id,name,account.getEmail(), phone,dateOfBirth,salary,gender,store.getAddress()
         );
     }
-
 }

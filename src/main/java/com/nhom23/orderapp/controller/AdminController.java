@@ -3,21 +3,19 @@ package com.nhom23.orderapp.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.nhom23.orderapp.model.Address;
-
 import com.nhom23.orderapp.model.Category;
 import com.nhom23.orderapp.repository.ItemCategoryRepository;
-import com.nhom23.orderapp.response.Response;
 import com.nhom23.orderapp.service.*;
-import org.apache.catalina.mapper.Mapper;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -25,8 +23,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
-@Controller
+@RestController
 @RequestMapping("/admin")
 public class AdminController {
     @Autowired
@@ -44,6 +43,8 @@ public class AdminController {
     private AdminService adminService;
     @Autowired
     private ShipperService shipperService;
+    @Autowired
+    private RevenueService revenueService;
     @PostMapping("manager")
     public ResponseEntity<?> addManager(
             @RequestParam("email") String email,
@@ -126,9 +127,14 @@ public class AdminController {
     @PostMapping("login")
     public ResponseEntity<?> login(
             @RequestParam("userName") String userName,
-            @RequestParam("password") String password
+            @RequestParam("password") String password,
+            HttpServletRequest request
     ){
-        return ResponseEntity.ok().body(adminService.login(userName,password));
+        return ResponseEntity.ok().body(adminService.login(userName,password,request.getServerName()));
+    }
+    @GetMapping("menu")
+    public ResponseEntity<?> getAllMenuItemDto(@RequestParam(required = false) String category) {
+        return ResponseEntity.ok().body(menuService.getAllMenuItemDto(category));
     }
     @GetMapping("manager")
     public ResponseEntity<?> getAllManager(){
@@ -186,18 +192,6 @@ public class AdminController {
     ){
         return ResponseEntity.ok().body(shipperService.updateShipper(id,email,name,phone,salary,dateOfBirth,gender));
     }
-    @PutMapping("menu/{id}")
-    public  ResponseEntity<?> updateMenuItem(
-            @PathVariable("id") Long id,
-            @RequestParam("name") String name,
-            @RequestParam("price") String price,
-            @RequestParam("description") String description,
-            @RequestParam("imageUrl") String imageUrl,
-            @RequestParam("categories") String categoriesStr
-    ) throws JsonProcessingException {
-        List<Category> categories = objectMapper.readValue(categoriesStr,new TypeReference<>(){});
-        return ResponseEntity.ok().body(menuService.updateMenuItem(id,name,price,description,imageUrl,categories));
-    }
     @PutMapping("store/{id}")
     public ResponseEntity<?> updateStore(
             @PathVariable("id") Long id,
@@ -223,5 +217,55 @@ public class AdminController {
             @RequestParam("imageUrl") String imageUrl
     ){
         return ResponseEntity.ok().body(categoryService.updateCategory(id,name,imageUrl));
+    }
+    @PatchMapping("manager/{id}")
+    public ResponseEntity<?> updateManager(
+            @PathVariable("id") Long id,
+            @RequestParam("fields") String f
+    ) throws JsonProcessingException {
+        Map<String,String> fields = objectMapper.readValue(f, new TypeReference<>() {});
+        return ResponseEntity.ok().body(managerService.updateManager(id,fields));
+    }
+    @PatchMapping("store/{id}")
+    public ResponseEntity<?> updateStore(
+            @PathVariable("id") Long id,
+            @RequestParam("fields") String f
+    ) throws JsonProcessingException {
+        Map<String,String> fields = objectMapper.readValue(f, new TypeReference<>() {});
+        return ResponseEntity.ok().body(storeService.updateStore(id,fields));
+    }
+    @PatchMapping("shipper/{id}")
+    public ResponseEntity<?> updateShipper(
+            @PathVariable("id") Long id,
+            @RequestParam("fields") String f
+    ) throws JsonProcessingException {
+        Map<String,String> fields = objectMapper.readValue(f, new TypeReference<>() {});
+        return ResponseEntity.ok().body(shipperService.updateShipper(id,fields));
+    }
+    @PatchMapping("menu/{id}")
+    public ResponseEntity<?> updateMenuItem(
+            @PathVariable("id") Long id,
+            @RequestParam("fields") String f
+    ) throws JsonProcessingException {
+        Map<String,String> fields = objectMapper.readValue(f, new TypeReference<>() {});
+        return ResponseEntity.ok().body(menuService.updateMenuItem(id,fields));
+    }
+    @GetMapping("revenue")
+    public ResponseEntity<?> getRevenue(
+            @RequestParam(required = false) Integer day,
+            @RequestParam(required = false) Integer month,
+            @RequestParam Integer year,
+            @RequestParam(required = false) String category
+    ){
+        if(category != null)
+            return ResponseEntity.ok().body(revenueService.getRevenueOfCategory(day,month,year,category));
+        return ResponseEntity.ok().body(revenueService.getRevenue(day,month,year));
+    }
+    @PostMapping("/test")
+    public String getImage(
+            @RequestParam MultipartFile image,
+            @RequestParam String fileName
+    ) {
+        return menuService.test(image,fileName);
     }
 }

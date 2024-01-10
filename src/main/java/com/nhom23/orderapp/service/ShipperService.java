@@ -20,7 +20,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -90,14 +92,14 @@ public class ShipperService {
         return shipperRepository.save(shipper).toDto();
     }
     @Transactional
-    public AuthResponse login(LoginRequest loginRequest){
+    public AuthResponse login(LoginRequest loginRequest,String url){
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUserName(),
                         loginRequest.getPassword());
         Authentication authentication = authenticationManager.authenticate(token);
         UserDetailsImp userDetails = (UserDetailsImp) authentication.getPrincipal();
-        String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername());
+        String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername(),url);
         Shipper shipper = shipperRepository.findById(userDetails.getId()).orElseThrow(null);
         return new AuthResponse(accessToken, shipper.getName(),userDetails.getRoles());
     }
@@ -153,10 +155,39 @@ public class ShipperService {
         numberFormat.setMaximumFractionDigits(0);
         shipper.setName(name);
         shipper.setSalary(Double.valueOf(salary));
-        shipper.setPhoneNumber(phone);
+        shipper.setPhone(phone);
         shipper.setDateOfBirth(LocalDate.parse(dateOfBirth,formatter));
         shipper.setGender(Gender.valueOf(gender));
         shipper.getAccount().setEmail(email);
+        return shipperRepository.save(shipper).toDto();
+    }
+    @Transactional
+    public ShipperDto updateShipper(Long id, Map<String,String> fields){
+        Shipper shipper = shipperRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Shipper not found"));
+        fields.forEach((key,value) -> {
+            if (key.equals("email")){
+                if(accountRepository.existsByEmail(value))
+                    throw new AlreadyExistException("Email already exist");
+                shipper.getAccount().setEmail(value);
+            }
+            else {
+                Field field = ReflectionUtils.findField(Shipper.class,key);
+                if(field != null){
+                    field.setAccessible(true);
+                    if(field.getType().getCanonicalName().equals(LocalDate.class.getCanonicalName())){
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                        LocalDate newValue = LocalDate.parse(value,formatter);
+                        ReflectionUtils.setField(field,shipper,newValue);
+                    }
+                    else if(field.getType().getCanonicalName().equals(Double.class.getCanonicalName())){
+                        Double newValue = Double.valueOf(value);
+                        ReflectionUtils.setField(field,shipper,newValue);
+                    }
+                    else ReflectionUtils.setField(field,shipper,value);
+                }
+            }
+        });
         return shipperRepository.save(shipper).toDto();
     }
 }

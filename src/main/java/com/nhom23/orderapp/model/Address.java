@@ -13,4 +13,8 @@ public class Address {
     private String city;
     private String district;
     private String street;
+    @Override
+    public String toString() {
+        return street + " - " + district + " - " + city;
+    }
 }

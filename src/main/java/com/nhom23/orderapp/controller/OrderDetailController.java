@@ -42,16 +42,4 @@ public class OrderDetailController {
                 gson.fromJson(storeDto,StoreDto.class)
         ), HttpStatus.CREATED);
     }
-    @GetMapping("")
-    public ResponseEntity<?> getAllOrder(){
-        return ResponseEntity.ok().body(orderDetailsService.getAllOrder());
-    }
-    @PostMapping("{id}")
-    public ResponseEntity<?> delegateJob(@PathVariable Long id,@RequestParam("id") Long shipperId){
-        return ResponseEntity.ok().body(orderDetailsService.delegateJob(id,shipperId));
-    }
-    @GetMapping("{id}")
-    public ResponseEntity<?> getOrder(@PathVariable Long id){
-        return ResponseEntity.ok().body(orderDetailsService.getOrderById(id));
-    }
 }

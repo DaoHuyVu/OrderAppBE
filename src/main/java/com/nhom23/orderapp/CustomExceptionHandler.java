@@ -1,6 +1,7 @@
 package com.nhom23.orderapp;
 
 import com.nhom23.orderapp.exception.AlreadyExistException;
+import com.nhom23.orderapp.exception.ForbiddenException;
 import com.nhom23.orderapp.exception.NotFoundException;
 import com.nhom23.orderapp.response.ErrorResponse;
 import org.springframework.http.HttpHeaders;
@@ -49,11 +50,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler{
         );
     }
     @ExceptionHandler({
-            AlreadyExistException.class,
             AuthenticationException.class,
             BadCredentialsException.class,
             AccessDeniedException.class,
-            DisabledException.class
+            DisabledException.class,
+            ForbiddenException.class
     })
     public ResponseEntity<ErrorResponse> handleForbiddenException(RuntimeException ex){
 
@@ -63,5 +64,12 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler{
                 status
         );
     }
-
+    @ExceptionHandler({AlreadyExistException.class})
+    public ResponseEntity<ErrorResponse> handleConflictException(RuntimeException ex){
+        HttpStatus status = HttpStatus.CONFLICT;
+        return new ResponseEntity<>(
+                new ErrorResponse(ex.getMessage(),status),
+                status
+        );
+    }
 }

@@ -17,7 +17,7 @@ public class CustomCategoryRepositoryImpl implements CustomCategoryRepository{
     @Override
     @Modifying(clearAutomatically = true,flushAutomatically = true)
     public Category deleteCategory(Long id) {
-        Category category = entityManager.getReference(Category.class,id);
+        Category category = entityManager.find(Category.class,id);
         if(category != null){
             itemCategoryRepository.deleteByCategoryId(id);
             entityManager.createQuery("""

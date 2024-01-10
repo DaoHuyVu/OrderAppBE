@@ -4,6 +4,7 @@ import com.nhom23.orderapp.model.Account;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 
+import io.jsonwebtoken.security.KeyAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,12 @@ public class JwtUtil {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
     @Value("${jwtSecret}")
     private String jwtSecret;
-    public String generateAccessTokenFromAccount(String email){
+    public String generateAccessTokenFromAccount(String email,String url){
+        System.out.println(url);
         return Jwts
                 .builder()
                 .subject(email)
-                .issuer(email)
+                .issuer(url)
                 .issuedAt(new Date())
                 .signWith(key())
                 .compact();

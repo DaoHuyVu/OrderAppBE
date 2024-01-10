@@ -26,8 +26,8 @@ public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest){
-        AuthResponse authResponse = authService.login(loginRequest);
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest,HttpServletRequest request){
+        AuthResponse authResponse = authService.login(loginRequest,request.getServerName());
         return new ResponseEntity<>(authResponse,HttpStatus.OK);
     }
     @PostMapping("/signup")

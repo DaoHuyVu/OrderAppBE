@@ -1,7 +1,6 @@
 package com.nhom23.orderapp.model;
 
 import com.nhom23.orderapp.dto.ManagerDto;
-import com.nhom23.orderapp.dto.ShipperDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,7 +28,7 @@ public class Manager extends Staff{
     }
     public ManagerDto toDto(){
         return new ManagerDto(
-                id,name,account.getEmail(),phoneNumber,dateOfBirth,salary,gender,store.getAddress()
+                id,name,account.getEmail(), phone,dateOfBirth,salary,gender,store.getAddress()
         );
     }
 }

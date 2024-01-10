@@ -29,14 +29,14 @@ public class CustomStoreRepositoryImpl implements CustomStoreRepository{
         Store store = entityManager.find(Store.class,id);
         if(store != null){
             Long managerId = managerRepository.findByStoreId(id);
-            managerRepository.deleteManager(managerId);
+            if(managerId != null){
+                managerRepository.deleteManager(managerId);
+                List<ShipperDto> shippers = shipperRepository.findAllByStoreId(id);
+                shippers.forEach(shipper -> shipperRepository.deleteShipper(shipper.getId()));
 
-            List<ShipperDto> shippers = shipperRepository.findAllByStoreId(id);
-            shippers.forEach(shipper -> shipperRepository.deleteShipper(shipper.getId()));
-
-            List<Long> orderDetailsId = orderDetailsRepository.findAllOfAStore(id);
-            orderDetailsId.forEach(orderId -> orderDetailsRepository.deleteOrder(orderId));
-
+                List<Long> orderDetailsId = orderDetailsRepository.findAllOfAStore(id);
+                orderDetailsId.forEach(orderId -> orderDetailsRepository.deleteOrder(orderId));
+            }
             entityManager.createQuery("""
                         Delete from Store s where s.id = :id
                     """).setParameter("id",id).executeUpdate();

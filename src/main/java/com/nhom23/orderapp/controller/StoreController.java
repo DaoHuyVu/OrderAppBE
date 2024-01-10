@@ -21,5 +21,8 @@ public class StoreController {
     public ResponseEntity<?> getStore(@PathVariable Long id){
         return ResponseEntity.ok().body(service.getStore(id));
     }
-
+    @GetMapping("store")
+    public ResponseEntity<?> getAllStore(){
+        return ResponseEntity.ok().body(service.getAllStore(null));
+    }
 }

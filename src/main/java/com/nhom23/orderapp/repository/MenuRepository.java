@@ -1,5 +1,6 @@
 package com.nhom23.orderapp.repository;
 
+import com.nhom23.orderapp.dto.MenuItemDto;
 import com.nhom23.orderapp.model.MenuItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +24,6 @@ public interface MenuRepository extends JpaRepository<MenuItem,Long>,CustomMenuI
             """)
     List<MenuItem> findByCategory(String category);
     Optional<MenuItem> findByName(String name) ;
+
+
 }

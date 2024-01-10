@@ -50,14 +50,14 @@ public class AuthService {
     private AccountRepository accountRepository;
     @Value("${spring.mail.username}")
     private String adminEmail;
-    public AuthResponse login(LoginRequest loginRequest){
+    public AuthResponse login(LoginRequest loginRequest,String url){
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUserName(),
                         loginRequest.getPassword());
         Authentication authentication = authenticationManager.authenticate(token);
         UserDetailsImp userDetails = (UserDetailsImp) authentication.getPrincipal();
-        String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername());
+        String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername(),url);
         Customer customer = customerRepository.findById(userDetails.getId()).orElseThrow(null);
         return new AuthResponse(accessToken, customer.getUserName(),userDetails.getRoles());
     }

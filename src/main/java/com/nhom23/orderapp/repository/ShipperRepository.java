@@ -12,7 +12,7 @@ import java.util.List;
 public interface ShipperRepository extends JpaRepository<Shipper,Long>,CustomShipperRepository{
     @Query("""
             SELECT new com.nhom23.orderapp.dto.ShipperDto(
-            s.id,s.name,a.email,s.phoneNumber,s.dateOfBirth,s.salary,s.gender,
+            s.id,s.name,a.email,s.phone,s.dateOfBirth,s.salary,s.gender,
             store.address)
             from Shipper s join Account a
             on a.id = s.account.id
@@ -22,7 +22,7 @@ public interface ShipperRepository extends JpaRepository<Shipper,Long>,CustomShi
     List<ShipperDto> findAllByStoreId(Long storeId);
     @Query("""
             SELECT new com.nhom23.orderapp.dto.ShipperDto(
-            s.id,s.name,a.email,s.phoneNumber,s.dateOfBirth,s.salary,s.gender,
+            s.id,s.name,a.email,s.phone,s.dateOfBirth,s.salary,s.gender,
             store.address)
             from Shipper s join Account a
             on a.id = s.account.id

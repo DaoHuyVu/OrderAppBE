@@ -20,6 +20,7 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetail,Long>,
             join Customer c on c.id = od.customer.id
             where m.id = :id and od.shipper.id is null
             """)
+    // Find all newly-created orders
     List<OrderDetailsDto> findAllByManagerId(Long id);
     @Query("""
             SELECT new com.nhom23.orderapp.dto.OrderDetailsDto
@@ -29,6 +30,7 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetail,Long>,
             join Store s on od.store.id = s.id
             where od.shipper.id = :id and od.status = DELIVERING
             """)
+    // Find all delegated orders of a shipper
     List<OrderDetailsDto> findAllByShipperId(Long id);
     @Query("""
             SELECT new com.nhom23.orderapp.dto.OrderDetailsDto
@@ -38,6 +40,7 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetail,Long>,
             join Customer c on c.id = od.customer.id
             where od.id = :id
             """)
+
     Optional<OrderDetailsDto> findDtoById(Long id);
     @Query("""
             SELECT  new com.nhom23.orderapp.dto.OrderDetailsDto
@@ -47,6 +50,7 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetail,Long>,
             join Customer c on c.id = od.customer.id
             where c.id = :id
             """)
+    // Find all orders of a customer
     Optional<List<OrderDetailsDto>> findAllByCustomerId(Long id);
 
     //Find all orders of a store
