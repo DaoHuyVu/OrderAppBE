@@ -18,5 +18,6 @@ public abstract class Staff {
     protected Double salary;
     @Enumerated(value = EnumType.STRING)
     protected Gender gender;
+
 }
 

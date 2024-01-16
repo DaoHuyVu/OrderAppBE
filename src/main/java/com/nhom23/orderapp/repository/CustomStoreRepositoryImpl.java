@@ -31,11 +31,11 @@ public class CustomStoreRepositoryImpl implements CustomStoreRepository{
             Long managerId = managerRepository.findByStoreId(id);
             if(managerId != null){
                 managerRepository.deleteManager(managerId);
+                List<Long> orderDetailsId = orderDetailsRepository.findAllOfAStore(id);
+                orderDetailsId.forEach(orderId -> orderDetailsRepository.deleteOrder(orderId));
                 List<ShipperDto> shippers = shipperRepository.findAllByStoreId(id);
                 shippers.forEach(shipper -> shipperRepository.deleteShipper(shipper.getId()));
 
-                List<Long> orderDetailsId = orderDetailsRepository.findAllOfAStore(id);
-                orderDetailsId.forEach(orderId -> orderDetailsRepository.deleteOrder(orderId));
             }
             entityManager.createQuery("""
                         Delete from Store s where s.id = :id

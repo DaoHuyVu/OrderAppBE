@@ -15,15 +15,13 @@ public class CustomOrderDetailsRepositoryImpl implements CustomOrderDetailsRepos
     private OrderItemRepository orderItemRepository;
     @Override
     @Modifying(clearAutomatically = true,flushAutomatically = true)
-    public OrderDetailsDto deleteOrder(Long id) {
+    public void deleteOrder(Long id) {
         OrderDetail orderDetail = entityManager.find(OrderDetail.class,id);
         if(orderDetail != null){
-            OrderDetailsDto orderDetailsDto = orderDetail.toDto();
-            orderItemRepository.deleteById(id);
+            orderItemRepository.deleteByOrderDetailId(id);
             entityManager.createQuery("""
                     Delete from OrderDetail o where o.id = :id
                 """).setParameter("id",id).executeUpdate();
-            return orderDetailsDto;
         }
         else throw new NotFoundException("Order not found");
     }

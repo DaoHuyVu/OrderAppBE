@@ -6,6 +6,7 @@ import io.jsonwebtoken.io.Decoders;
 
 import io.jsonwebtoken.security.KeyAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +55,8 @@ public class JwtUtil {
             logger.error("JWT token is unsupported: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims string is empty: {}", e.getMessage());
+        }catch(SignatureException ex){
+            logger.error("Jwt signature error: {}",ex.getMessage());
         }
         return false;
     }

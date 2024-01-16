@@ -17,17 +17,16 @@ import com.nhom23.orderapp.repository.MenuRepository;
 import com.nhom23.orderapp.response.MenuResponse;
 import io.jsonwebtoken.impl.lang.Bytes;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.*;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.util.List;
@@ -39,8 +38,9 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class MenuService {
     private final ObjectMapper mapper = new ObjectMapper();
-    @Autowired
-    private CategoryRepository categoryRepository;
+
+    @Value("${imageDirectoryPath}")
+    private String imageDir;
     @Autowired
     private MenuRepository menuRepository;
     @Autowired
@@ -74,13 +74,13 @@ public class MenuService {
             String name,
             String price,
             String description,
-            String imageUrl,
+            MultipartFile file,
             List<Category> categories){
         Optional<MenuItem> menuItem = menuRepository.findByName(name);
         if(menuItem.isPresent()){
             throw new AlreadyExistException("Item already exist");
         }
-        MenuItem item = new MenuItem(name,Double.valueOf(price),description,imageUrl);
+        MenuItem item = new MenuItem(name,Double.valueOf(price),description,file.getOriginalFilename());
         categories.forEach(c -> {
             ItemCategory itemCategory = new ItemCategory();
             itemCategory.setItem(item);
@@ -88,42 +88,32 @@ public class MenuService {
             itemCategoryRepository.save(itemCategory);
         });
         menuRepository.save(item);
+        try(FileOutputStream fos = new FileOutputStream(imageDir+file.getOriginalFilename())){
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            bos.write(file.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return new MenuItemDto(
+                item.getId(),
+                item.getName(),
+                item.getPrice().toString(),
+                item.getDescription(),
+                item.getImageUrl(),
+                categories
+        );
+    }
 
-        return new MenuItemDto(item.getId(),name,price,description,imageUrl,categories);
-    }
-    @Transactional
-    public Category addCategory(String name,String imageUrl){
-        return categoryRepository.save(new Category(name,imageUrl));
-    }
     @Transactional
     public MenuItem deleteMenuItem(Long id){
+        MenuItem menuItem = menuRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Menu item not found"));
+        File file = new File(imageDir+menuItem.getImageUrl());
+        file.delete();
         return menuRepository.deleteMenuItem(id);
     }
     @Transactional
-    public MenuItemDto updateMenuItem(
-            Long id,
-            String name,
-            String price,
-            String description,
-            String imageUrl,
-            List<Category> categories
-    ){
-        MenuItem item = menuRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Item not found"));
-        item.setName(name);
-        item.setDescription(description);
-        NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        formatter.setMaximumFractionDigits(0);
-        item.setPrice(Double.valueOf(price));
-        item.setImageUrl(imageUrl);
-        itemCategoryRepository.deleteByItemId(id);
-        ItemCategory itemCategory = new ItemCategory();
-        itemCategory.setItem(item);
-        categories.forEach(itemCategory::setCategory);
-        return new MenuItemDto(id,name,price,description,imageUrl,categories);
-    }
-    @Transactional
-    public MenuItemDto updateMenuItem(Long id, Map<String,String> fields) {
+    public MenuItemDto updateMenuItem(Long id, Map<String,String> fields,MultipartFile image) {
         MenuItem item = menuRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
         fields.forEach((key,value) -> {
@@ -141,12 +131,11 @@ public class MenuService {
                     throw new RuntimeException(e);
                 }
             }
-
             else{
                 Field field = ReflectionUtils.findField(MenuItem.class,key);
                 if(field != null){
                     field.setAccessible(true);
-                    if(field.getType().getCanonicalName().equals(Double.class.getCanonicalName())){
+                    if(field.getType().equals(Double.class)){
                         Double newValue = Double.valueOf(value);
                         ReflectionUtils.setField(field,item,newValue);
                     }
@@ -154,6 +143,17 @@ public class MenuService {
                 }
             }
         });
+        if(image!=null){
+            try(FileOutputStream fos = new FileOutputStream(imageDir+image.getOriginalFilename())){
+                File file = new File(imageDir+item.getImageUrl());
+                file.delete();
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+                bos.write(image.getBytes());
+                item.setImageUrl(image.getOriginalFilename());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return new MenuItemDto(
                 item.getId(),
                 item.getName(),
@@ -161,16 +161,5 @@ public class MenuService {
                 item.getDescription(),
                 item.getImageUrl(),
                 itemCategoryRepository.findCategoriesByItemId(item.getId()));
-    }
-    @Transactional
-    public String test(MultipartFile file,String fileName){
-        try(FileOutputStream fos = new FileOutputStream("C:\\xampp2\\htdocs\\"+fileName)){
-            byte[] fileByte = file.getBytes();
-            BufferedOutputStream bos = new BufferedOutputStream(fos);
-            bos.write(fileByte);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return "success";
     }
 }

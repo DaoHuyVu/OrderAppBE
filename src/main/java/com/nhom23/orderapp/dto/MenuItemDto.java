@@ -7,6 +7,7 @@ import lombok.Getter;
 import java.util.List;
 @Getter
 @AllArgsConstructor
+// Why this class exist? Cause categories
 public class MenuItemDto {
     private long id;
     private String name;

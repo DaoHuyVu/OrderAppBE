@@ -7,7 +7,6 @@ import com.nhom23.orderapp.model.Address;
 import com.nhom23.orderapp.model.Category;
 import com.nhom23.orderapp.repository.ItemCategoryRepository;
 import com.nhom23.orderapp.service.*;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -75,7 +74,7 @@ public class AdminController {
             @RequestParam("dateOfBirth")String dateOfBirth,
             @RequestParam("gender")String gender,
             @RequestParam("storeId") String storeId
-    ) throws ParseException {
+    )  {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         NumberFormat numberFormat = DecimalFormat.getCurrencyInstance();
         numberFormat.setMaximumFractionDigits(0);
@@ -107,21 +106,21 @@ public class AdminController {
     @PostMapping("category")
     public ResponseEntity<?> addCategory(
             @RequestParam("name") String name,
-            @RequestParam("imageUrl") String imageUrl
-    ){
-        return new ResponseEntity<>(menuService.addCategory(name,imageUrl),HttpStatus.CREATED);
+            @RequestParam("image") MultipartFile image
+    ) throws IOException {
+        return new ResponseEntity<>(categoryService.addCategory(name,image),HttpStatus.CREATED);
     }
     @PostMapping("menu")
     public ResponseEntity<?> addMenuItem(
-            @RequestParam("name") String name,
-            @RequestParam("price") String price,
-            @RequestParam("description") String description,
-            @RequestParam("imageUrl") String imageUrl,
+            @RequestParam String name,
+            @RequestParam String price,
+            @RequestParam String description,
+            @RequestParam MultipartFile image,
             @RequestParam("categories") String categoriesStr
     ) throws JsonProcessingException {
         List<Category> categories = objectMapper.readValue(categoriesStr, new TypeReference<>() {});
         return new ResponseEntity<>(
-                menuService.addMenuItem(name,price,description,imageUrl,categories),HttpStatus.CREATED
+                menuService.addMenuItem(name,price,description,image,categories),HttpStatus.CREATED
         );
     }
     @PostMapping("login")
@@ -149,7 +148,7 @@ public class AdminController {
         return ResponseEntity.ok().body(storeService.getAllStore(isManaged));
     }
     @DeleteMapping("category/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable("id") Long id){
+    public ResponseEntity<?> deleteCategory(@PathVariable("id") Long id) throws IOException {
         return ResponseEntity.ok().body(categoryService.deleteCategory(id));
     }
     @DeleteMapping("store/{id}")
@@ -168,55 +167,14 @@ public class AdminController {
     public ResponseEntity<?> deleteManager(@PathVariable("id") Long id){
         return ResponseEntity.ok().body(managerService.deleteManager(id));
     }
-    @PutMapping("manager/{id}")
-    public ResponseEntity<?> updateManager(
-            @PathVariable("id") Long id,
-            @RequestParam("email") String email,
-            @RequestParam("name")String name,
-            @RequestParam("phone")String phone,
-            @RequestParam("salary")String salary,
-            @RequestParam("dateOfBirth")String dateOfBirth,
-            @RequestParam("gender")String gender
-    ){
-        return ResponseEntity.ok().body(managerService.updateManager(id,email,name,phone,salary,dateOfBirth,gender));
-    }
-    @PutMapping("shipper/{id}")
-    public ResponseEntity<?> updateShipper(
-            @PathVariable("id") Long id,
-            @RequestParam("email") String email,
-            @RequestParam("name")String name,
-            @RequestParam("phone")String phone,
-            @RequestParam("salary")String salary,
-            @RequestParam("dateOfBirth")String dateOfBirth,
-            @RequestParam("gender")String gender
-    ){
-        return ResponseEntity.ok().body(shipperService.updateShipper(id,email,name,phone,salary,dateOfBirth,gender));
-    }
-    @PutMapping("store/{id}")
-    public ResponseEntity<?> updateStore(
-            @PathVariable("id") Long id,
-            @RequestParam("city") String city,
-            @RequestParam("district") String district,
-            @RequestParam("street") String street,
-            @RequestParam("openingTime") String openingTime,
-            @RequestParam("closingTime") String closingTime
-    ){
-        Address address = new Address(city,district,street);
-        return ResponseEntity.ok().body(
-                storeService.updateStore(
-                        id,
-                        address,
-                        LocalTime.parse(openingTime),
-                        LocalTime.parse(closingTime))
-        );
-    }
-    @PutMapping("category/{id}")
+
+    @PatchMapping("category/{id}")
     public ResponseEntity<?> updateCategory(
             @PathVariable("id") Long id,
-            @RequestParam("name") String name,
-            @RequestParam("imageUrl") String imageUrl
-    ){
-        return ResponseEntity.ok().body(categoryService.updateCategory(id,name,imageUrl));
+            @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) MultipartFile image
+    ) {
+        return ResponseEntity.ok().body(categoryService.updateCategory(id,categoryName,image));
     }
     @PatchMapping("manager/{id}")
     public ResponseEntity<?> updateManager(
@@ -245,27 +203,23 @@ public class AdminController {
     @PatchMapping("menu/{id}")
     public ResponseEntity<?> updateMenuItem(
             @PathVariable("id") Long id,
-            @RequestParam("fields") String f
+            @RequestParam("fields") String f,
+            @RequestParam(required = false) MultipartFile image
     ) throws JsonProcessingException {
         Map<String,String> fields = objectMapper.readValue(f, new TypeReference<>() {});
-        return ResponseEntity.ok().body(menuService.updateMenuItem(id,fields));
+        return ResponseEntity.ok().body(menuService.updateMenuItem(id,fields,image));
     }
+
     @GetMapping("revenue")
     public ResponseEntity<?> getRevenue(
-            @RequestParam(required = false) Integer day,
-            @RequestParam(required = false) Integer month,
-            @RequestParam Integer year,
-            @RequestParam(required = false) String category
+            @RequestParam String from,
+            @RequestParam String to,
+            @RequestParam(required = false) String menuItem
     ){
-        if(category != null)
-            return ResponseEntity.ok().body(revenueService.getRevenueOfCategory(day,month,year,category));
-        return ResponseEntity.ok().body(revenueService.getRevenue(day,month,year));
+        if(menuItem != null)
+            return ResponseEntity.ok().body(revenueService.getRevenueOfMenuItem(from,to,menuItem));
+        return ResponseEntity.ok().body(revenueService.getRevenue(from,to));
+
     }
-    @PostMapping("/test")
-    public String getImage(
-            @RequestParam MultipartFile image,
-            @RequestParam String fileName
-    ) {
-        return menuService.test(image,fileName);
-    }
+
 }

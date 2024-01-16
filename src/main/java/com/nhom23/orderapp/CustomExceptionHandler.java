@@ -50,8 +50,6 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler{
         );
     }
     @ExceptionHandler({
-            AuthenticationException.class,
-            BadCredentialsException.class,
             AccessDeniedException.class,
             DisabledException.class,
             ForbiddenException.class
@@ -67,6 +65,17 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler{
     @ExceptionHandler({AlreadyExistException.class})
     public ResponseEntity<ErrorResponse> handleConflictException(RuntimeException ex){
         HttpStatus status = HttpStatus.CONFLICT;
+        return new ResponseEntity<>(
+                new ErrorResponse(ex.getMessage(),status),
+                status
+        );
+    }
+    @ExceptionHandler({
+            BadCredentialsException.class,
+            AuthenticationException.class
+    })
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(RuntimeException ex){
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
         return new ResponseEntity<>(
                 new ErrorResponse(ex.getMessage(),status),
                 status

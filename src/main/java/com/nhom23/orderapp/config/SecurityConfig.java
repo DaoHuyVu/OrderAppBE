@@ -1,11 +1,8 @@
 package com.nhom23.orderapp.config;
 
-import com.google.gson.Gson;
-import com.nhom23.orderapp.security.jwt.AccessDeniedExceptionFilter;
 import com.nhom23.orderapp.security.jwt.AuthTokenFilter;
+import com.nhom23.orderapp.security.jwt.AuthenticationEntryPointJwt;
 import com.nhom23.orderapp.security.service.UserDetailsServiceImp;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -50,22 +46,15 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(){
         return new ProviderManager(daoAuthenticationProvider());
     }
-    @Autowired
-    @Qualifier("authEntryPointJwt")
-    private AuthenticationEntryPoint authenticationEntryPoint;
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint(){
+        return new AuthenticationEntryPointJwt();
+    }
     @Bean
     public FilterRegistrationBean<AuthTokenFilter> authTokenRegistrationBean(){
         return provideRegistrationBean(authTokenFilter());
     }
-    @Bean
-    public FilterRegistrationBean<AccessDeniedExceptionFilter> accessDeniedExceptionFilterRegistrationBean(){
-        return provideRegistrationBean(accessDeniedExceptionFilter());
-    }
 
-    @Bean
-    public AccessDeniedExceptionFilter accessDeniedExceptionFilter(){
-        return new AccessDeniedExceptionFilter();
-    }
     @Bean
     public AuthTokenFilter authTokenFilter(){
         return new AuthTokenFilter();
@@ -92,7 +81,7 @@ public class SecurityConfig {
                 .authenticationManager(authenticationManager())
                 .exceptionHandling(exception ->
                         exception
-                                .authenticationEntryPoint(authenticationEntryPoint))
+                                .authenticationEntryPoint(authenticationEntryPoint()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
@@ -106,11 +95,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception ->
                         exception
-                                .authenticationEntryPoint(authenticationEntryPoint))
+                                .authenticationEntryPoint(authenticationEntryPoint()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationManager(authenticationManager())
-                .addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(accessDeniedExceptionFilter(), AuthorizationFilter.class);
+                .addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

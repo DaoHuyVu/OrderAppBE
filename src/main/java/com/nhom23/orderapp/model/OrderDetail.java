@@ -23,7 +23,6 @@ public class OrderDetail {
     private Shipper shipper;
     @ManyToOne(fetch = FetchType.LAZY)
     private Store store;
-    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "DD/MM/YYYY HH:mm:ss",timezone = "UTC")
     private LocalDateTime createdAt;
     private String phone;
     private String address;
