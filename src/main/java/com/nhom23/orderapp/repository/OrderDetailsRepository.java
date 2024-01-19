@@ -16,7 +16,7 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetail,Long>,
             (od.id,od.phone,od.address,od.price,c.userName,od.createdAt,od.status,new com.nhom23.orderapp.model.Address(s.address.city,s.address.district,s.address.street))
             from OrderDetail od
             join Store s on od.store.id = s.id
-            join Manager m on s.id = m.store.id
+            join Staff m on s.id = m.store.id
             join Customer c on c.id = od.customer.id
             where m.id = :id and od.shipper.id is null
             """)
@@ -58,4 +58,8 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetail,Long>,
             Select o.id from OrderDetail o where o.store.id = :id
             """)
     List<Long> findAllOfAStore(Long id);
+    @Query("""
+            Update OrderDetail od set od.shipper = null where od.shipper.id = :shipperId
+            """)
+    void updateItemOnShipperDeletion(Long shipperId);
 }

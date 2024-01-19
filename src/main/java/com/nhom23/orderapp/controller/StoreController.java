@@ -13,6 +13,7 @@ import java.time.LocalTime;
 
 @RestController
 @RequestMapping("/api")
+@SuppressWarnings("unused")
 public class StoreController {
     @Autowired
     private StoreService service;
@@ -23,6 +24,6 @@ public class StoreController {
     }
     @GetMapping("store")
     public ResponseEntity<?> getAllStore(){
-        return ResponseEntity.ok().body(service.getAllStore(null));
+        return ResponseEntity.ok().body(service.getAllStore());
     }
 }

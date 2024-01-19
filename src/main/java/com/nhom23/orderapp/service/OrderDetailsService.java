@@ -25,7 +25,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class OrderDetailsService {
     @Autowired
-    private ShipperRepository shipperRepository;
+    private StaffRepository staffRepository;
     @Autowired
     private OrderItemRepository orderItemRepository;
     @Autowired
@@ -84,7 +84,7 @@ public class OrderDetailsService {
     public Long delegateJob(Long id,Long shipperId){
         OrderDetail orderDetail = orderDetailsRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
-        orderDetail.setShipper(shipperRepository.getReferenceById(shipperId));
+        orderDetail.setShipper(staffRepository.getReferenceById(shipperId));
         orderDetail.setStatus(OrderStatus.DELIVERING);
         orderDetailsRepository.save(orderDetail);
         return id;

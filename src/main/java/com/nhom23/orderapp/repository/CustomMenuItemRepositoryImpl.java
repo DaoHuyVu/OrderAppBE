@@ -14,7 +14,7 @@ public class CustomMenuItemRepositoryImpl implements CustomMenuItemRepository{
     @PersistenceContext
     private EntityManager entityManager;
     @Override
-    @Modifying(clearAutomatically = true,flushAutomatically = true)
+    @Modifying
     public MenuItem deleteMenuItem(Long id) {
         MenuItem menuItem = entityManager.find(MenuItem.class,id);
         if(menuItem != null){

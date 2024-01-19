@@ -15,7 +15,7 @@ public class CustomCategoryRepositoryImpl implements CustomCategoryRepository{
     @PersistenceContext
     private EntityManager entityManager;
     @Override
-    @Modifying(clearAutomatically = true,flushAutomatically = true)
+    @Modifying
     public Category deleteCategory(Long id) {
         Category category = entityManager.find(Category.class,id);
         if(category != null){

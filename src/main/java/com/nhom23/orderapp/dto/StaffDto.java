@@ -2,19 +2,16 @@ package com.nhom23.orderapp.dto;
 
 import com.nhom23.orderapp.model.Address;
 import com.nhom23.orderapp.model.Gender;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serial;
 import java.io.Serializable;
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @NoArgsConstructor
 @Data
-public class ManagerDto implements Serializable {
+public class StaffDto{
     private Long id;
     private String name;
     private String email;
@@ -24,7 +21,7 @@ public class ManagerDto implements Serializable {
     private Gender gender;
     private Address address;
 
-    public ManagerDto(Long id, String name, String email, String phone, LocalDate dateOfBirth, Double salary, Gender gender, Address address) {
+    public StaffDto(Long id, String name, String email, String phone, LocalDate dateOfBirth, Double salary, Gender gender, Address address) {
         this.id = id;
         this.name = name;
         this.email = email;

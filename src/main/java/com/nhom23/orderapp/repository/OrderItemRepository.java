@@ -24,7 +24,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem,Long> {
             UPDATE OrderItem ot SET ot.quantity = :quantity
             where ot.id = :id and ot.customer.id = :customerId
             """)
-    @Modifying(clearAutomatically = true,flushAutomatically = true)
+    @Modifying
     void updateQuantity(Long id,Long customerId,Integer quantity);
     @Query("""
             SELECT new com.nhom23.orderapp.dto.OrderItemDto(ot.id,i.name,ot.quantity,i.price,i.imageUrl)

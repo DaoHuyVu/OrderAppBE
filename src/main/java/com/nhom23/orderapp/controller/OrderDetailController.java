@@ -19,6 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/order")
+@SuppressWarnings("unused")
 public class OrderDetailController {
     @Autowired
     private OrderDetailsService orderDetailsService;

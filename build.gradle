@@ -38,11 +38,10 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail
 	implementation 'org.springframework.boot:spring-boot-starter-mail:3.2.0'
-	// https://mvnrepository.com/artifact/net.bytebuddy/byte-buddy
-	implementation 'net.bytebuddy:byte-buddy:1.14.10'
 	implementation 'org.springframework.boot:spring-boot-devtools:3.1.4'
+	// https://mvnrepository.com/artifact/io.hypersistence/hypersistence-tsid
+	implementation 'io.hypersistence:hypersistence-tsid:2.1.1'
 
-	implementation 'commons-net:commons-net:3.10.0'
 }
 
 tasks.named('test') {

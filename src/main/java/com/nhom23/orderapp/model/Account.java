@@ -1,5 +1,6 @@
 package com.nhom23.orderapp.model;
 
+import io.hypersistence.tsid.TSID;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

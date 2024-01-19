@@ -21,9 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Service
 public class AuthService {
+
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     @Autowired
     private JavaMailSender sender;
@@ -50,6 +53,7 @@ public class AuthService {
     private AccountRepository accountRepository;
     @Value("${spring.mail.username}")
     private String adminEmail;
+    @PostAuthorize("hasAuthority('ROLE_USER')")
     public AuthResponse login(LoginRequest loginRequest,String url){
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(
@@ -57,10 +61,12 @@ public class AuthService {
                         loginRequest.getPassword());
         Authentication authentication = authenticationManager.authenticate(token);
         UserDetailsImp userDetails = (UserDetailsImp) authentication.getPrincipal();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername(),url);
         Customer customer = customerRepository.findById(userDetails.getId()).orElseThrow(null);
         return new AuthResponse(accessToken, customer.getUserName(),userDetails.getRoles());
     }
+
     public Response signUp(SignUpRequest signUpRequest,String siteUrl){
         if(accountRepository.existsByEmail(signUpRequest.getEmail()))
             throw new AlreadyExistException("Email already exist");
@@ -106,15 +112,14 @@ public class AuthService {
     }
 
     private static String getString(Customer customer, String siteUrl,Account account) {
-        String content = "Dear [[receiver]],<br>"
-                + "Please click the link below to verify your registration:<br>"
-                + "<h3><a rel =\"icon\" href=\"[[URL]]\" target=\"_self\">VERIFY</a></h3>"
-                + "Thank you,<br>"
-                + "OrderApp.";
         String verifyUrl = siteUrl + "/verify?email=" + account.getEmail();
-        content = content.replace("[[URL]]",verifyUrl);
-        content = content.replace("[[receiver]]", customer.getUserName());
-        return content;
+        return String.format(
+                "Dear %s,<br>"
+                        + "Please click the link below to verify your registration:<br>"
+                        + "<h3><a rel =\"icon\" href=\"%s\" target=\"_self\">VERIFY</a></h3>"
+                        + "Thank you,<br>"
+                        + "OrderApp.",customer.getUserName(),verifyUrl
+        );
     }
     public Response verify(String email){
         Account account = accountRepository.findAccountByEmail(email)

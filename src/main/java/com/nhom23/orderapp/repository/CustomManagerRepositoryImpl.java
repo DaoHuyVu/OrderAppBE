@@ -1,8 +1,8 @@
 package com.nhom23.orderapp.repository;
 
-import com.nhom23.orderapp.dto.ManagerDto;
+import com.nhom23.orderapp.dto.StaffDto;
 import com.nhom23.orderapp.exception.NotFoundException;
-import com.nhom23.orderapp.model.Manager;
+import com.nhom23.orderapp.model.Staff;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +14,11 @@ public class CustomManagerRepositoryImpl implements CustomManagerRepository{
     @Autowired
     private AccountRepository accountRepository;
     @Override
-    @Modifying(clearAutomatically = true,flushAutomatically = true)
-    public ManagerDto deleteManager(Long id) {
-        Manager manager = entityManager.find(Manager.class,id);
+    @Modifying
+    public StaffDto deleteManager(Long id) {
+        Staff manager = entityManager.find(Staff.class,id);
         if(manager != null){
-            ManagerDto returnedManager = manager.toDto();
+            StaffDto returnedManager = manager.toDto();
             entityManager.createQuery("""
                         Delete from Manager m where m.id = :id
                     """).setParameter("id",id).executeUpdate();

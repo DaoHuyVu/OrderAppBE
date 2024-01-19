@@ -16,9 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(AuthController.CLASS_MAPPING)
+@RequestMapping(AuthController.SERVLET_PATH)
+@SuppressWarnings("unused")
 public class AuthController {
-    final static String CLASS_MAPPING = "/api/auth";
+    final static String SERVLET_PATH = "/api/auth";
     @Autowired
     private AuthService authService;
     @Autowired
@@ -35,7 +36,7 @@ public class AuthController {
             @Valid @RequestBody SignUpRequest signUpRequest,
             HttpServletRequest request){
         String requestUrl = request.getRequestURL().toString();
-        String siteUrl = requestUrl.replace(request.getServletPath(),CLASS_MAPPING);
+        String siteUrl = requestUrl.replace(request.getServletPath(),SERVLET_PATH);
         Response response = authService.signUp(signUpRequest,siteUrl);
         return new ResponseEntity<>(response,HttpStatus.CREATED);
     }

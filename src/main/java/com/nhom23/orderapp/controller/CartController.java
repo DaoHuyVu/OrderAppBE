@@ -1,20 +1,18 @@
 package com.nhom23.orderapp.controller;
 
 import com.nhom23.orderapp.dto.OrderItemDto;
-import com.nhom23.orderapp.model.OrderItem;
 import com.nhom23.orderapp.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@SuppressWarnings("unused")
 public class CartController {
     @Autowired
     private CartService service;

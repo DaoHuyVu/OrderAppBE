@@ -1,6 +1,8 @@
 package com.nhom23.orderapp.service;
 
-import com.nhom23.orderapp.dto.ManagerDto;
+import com.nhom23.orderapp.dto.OrderDetailsDto;
+import com.nhom23.orderapp.dto.StaffDto;
+import com.nhom23.orderapp.dto.UserDto;
 import com.nhom23.orderapp.exception.AlreadyExistException;
 import com.nhom23.orderapp.exception.NotFoundException;
 import com.nhom23.orderapp.model.*;
@@ -10,24 +12,26 @@ import com.nhom23.orderapp.response.AuthResponse;
 import com.nhom23.orderapp.security.jwt.JwtUtil;
 import com.nhom23.orderapp.security.service.UserDetailsImp;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
-public class ManagerService {
+public class StaffService {
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
@@ -35,7 +39,7 @@ public class ManagerService {
     @Autowired
     private StoreRepository storeRepository;
     @Autowired
-    private ManagerRepository managerRepository;
+    private StaffRepository staffRepository;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
@@ -44,9 +48,13 @@ public class ManagerService {
     private AccountRepository accountRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private OrderDetailsRepository orderDetailsRepository;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Transactional()
-    public ManagerDto addManagerAccount(
+    public StaffDto addStaff(
             String email,
             String password,
             String name,
@@ -54,7 +62,8 @@ public class ManagerService {
             Long storeId,
             Double salary,
             LocalDate dateOfBirth,
-            String gender
+            String gender,
+            String role
     ){
         if(accountRepository.existsByEmail(email)){
             throw new AlreadyExistException("This email is already exist");
@@ -65,19 +74,22 @@ public class ManagerService {
 
         AccountRole accountRole = new AccountRole();
 
-        Manager manager = new Manager(
+        Staff staff = new Staff(
                 name,phone,dateOfBirth,salary,Gender.valueOf(gender)
         );
-        Role role = roleRepository.findByRole(ERole.ROLE_MANAGER);
+        Role role1 = roleRepository.findByRole(ERole.valueOf(role));
+        Role role2 = roleRepository.findByRole(ERole.ROLE_USER);
         accountRole.setAccount(account);
-        accountRole.setRole(role);
+        accountRole.setRole(role1);
+        accountRole.setRole(role2);
 
-        manager.setAccount(account);
-        manager.setStore(storeRepository.getReferenceById(storeId));
+        staff.setAccount(account);
+        staff.setStore(storeRepository.getReferenceById(storeId));
 
         accountRoleRepository.save(accountRole);
-        return managerRepository.save(manager).toDto();
+        return staffRepository.save(staff).toDto();
     }
+    @PostAuthorize("hasAnyAuthority('ROLE_MANAGER','ROLE_STAFF)")
     public AuthResponse login(LoginRequest loginRequest,String url){
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(
@@ -85,69 +97,77 @@ public class ManagerService {
                         loginRequest.getPassword());
         Authentication authentication = authenticationManager.authenticate(token);
         UserDetailsImp userDetails = (UserDetailsImp) authentication.getPrincipal();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = jwtUtil.generateAccessTokenFromAccount(userDetails.getUsername(),url);
-        Manager manager = managerRepository.findById(userDetails.getId()).orElseThrow(null);
-        return new AuthResponse(accessToken, manager.getName(),userDetails.getRoles());
+        Staff staff = staffRepository.findById(userDetails.getId()).orElseThrow(null);
+        return new AuthResponse(accessToken, staff.getName(),userDetails.getRoles());
     }
-    public List<ManagerDto> getAllManager(){
-        return managerRepository.findAllManager();
-    }
-    @Transactional
-    public ManagerDto deleteManager(Long id){
-        return managerRepository.deleteManager(id);
+    public List<StaffDto> getAllManager(){
+        return staffRepository.findAllManager();
     }
     @Transactional
-    public ManagerDto updateManager(
-            Long id,
-            String email,
-            String name,
-            String phone,
-            String salary,
-            String dateOfBirth,
-            String gender
-    ){
-        Manager manager = managerRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Manager not found"));
-        if(accountRepository.existsByEmail(email) && !email.equals(manager.getAccount().getEmail()))
-            throw new AlreadyExistException("Email already exists");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
-        numberFormat.setMaximumFractionDigits(0);
-        manager.setName(name);
-        manager.setSalary(Double.valueOf(salary));
-        manager.setPhone(phone);
-        manager.setDateOfBirth(LocalDate.parse(dateOfBirth,formatter));
-        manager.setGender(Gender.valueOf(gender));
-        manager.getAccount().setEmail(email);
-        return managerRepository.save(manager).toDto();
+    public StaffDto deleteManager(Long id){
+        return staffRepository.deleteManager(id);
     }
     @Transactional
-    public ManagerDto updateManager(Long id,Map<String,String> fields){
-        Manager manager = managerRepository.findById(id)
+    public StaffDto deleteShipper(Long id){
+        return staffRepository.deleteShipper(id);
+    }
+    @Transactional
+    public StaffDto updateStaff(Long id, Map<String,String> fields){
+        Staff staff = staffRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Manager not found"));
         fields.forEach((key,value) -> {
             if (key.equals("email")){
                 if(accountRepository.existsByEmail(value))
                     throw new AlreadyExistException("Email already exist");
-                manager.getAccount().setEmail(value);
+                staff.getAccount().setEmail(value);
             }
             else {
-                Field field = ReflectionUtils.findField(Manager.class,key);
+                Field field = ReflectionUtils.findField(Staff.class,key);
                 if(field != null){
                     field.setAccessible(true);
                     if(field.getType().getCanonicalName().equals(LocalDate.class.getCanonicalName())){
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                         LocalDate newValue = LocalDate.parse(value,formatter);
-                        ReflectionUtils.setField(field,manager,newValue);
+                        ReflectionUtils.setField(field,staff,newValue);
                     }
                     else if(field.getType().getCanonicalName().equals(Double.class.getCanonicalName())){
                         Double newValue = Double.valueOf(value);
-                        ReflectionUtils.setField(field,manager,newValue);
+                        ReflectionUtils.setField(field,staff,newValue);
                     }
-                    else ReflectionUtils.setField(field,manager,value);
+                    else ReflectionUtils.setField(field,staff,value);
                 }
             }
         });
-        return managerRepository.save(manager).toDto();
+        return staffRepository.save(staff).toDto();
+    }
+    public List<StaffDto> getAllShipperOfStore(){
+        Long storeId = staffRepository.findStoreIdByManagerId(getUserDetail()
+                .getId()).orElseThrow(()-> new NotFoundException("Store not found"));
+        return staffRepository.findAllShipperByStoreId(storeId);
+    }
+
+    private UserDto getUserDetail(){
+        return (UserDto) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+    public List<OrderDetailsDto> getAllOrder(){
+        List<OrderDetailsDto> orderDetails = orderDetailsRepository
+                .findAllByShipperId(getUserDetail().getId());
+        orderDetails.forEach(od -> od.setOrderItemDtoList(orderItemRepository.findByOrderDetailsId(od.getId())));
+        return orderDetails;
+    }
+    @Transactional
+    public Map<Long,String> informOrder(Long id,Boolean isSucceed){
+        OrderDetail orderDetail = orderDetailsRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found"));
+        if(isSucceed){
+            orderDetail.setStatus(OrderStatus.DELIVERED);
+            return Collections.singletonMap(id, OrderStatus.DELIVERED.name());
+        }
+        else orderDetail.setStatus(OrderStatus.CANCELLED);
+        return Collections.singletonMap(id,OrderStatus.CANCELLED.name());
+    }
+    public List<StaffDto> getAllShipper(){
+        return staffRepository.findAllShipper();
     }
 }

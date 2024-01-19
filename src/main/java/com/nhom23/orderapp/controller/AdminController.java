@@ -11,13 +11,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -26,6 +25,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
+@SuppressWarnings("unused")
 public class AdminController {
     @Autowired
     private CategoryService categoryService;
@@ -37,15 +37,13 @@ public class AdminController {
     @Autowired
     private StoreService storeService;
     @Autowired
-    private ManagerService managerService;
+    private StaffService staffService;
     @Autowired
     private AdminService adminService;
     @Autowired
-    private ShipperService shipperService;
-    @Autowired
     private RevenueService revenueService;
-    @PostMapping("manager")
-    public ResponseEntity<?> addManager(
+    @PostMapping("staff")
+    public ResponseEntity<?> addStaff(
             @RequestParam("email") String email,
             @RequestParam("password")String password,
             @RequestParam("name")String name,
@@ -53,37 +51,18 @@ public class AdminController {
             @RequestParam("salary")String salary,
             @RequestParam("dateOfBirth")String dateOfBirth,
             @RequestParam("gender")String gender,
-            @RequestParam("storeId") String storeId
+            @RequestParam("storeId") String storeId,
+            @RequestParam("role") String role
     ){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        return new ResponseEntity<>(managerService.addManagerAccount(
+        HttpServletRequest request;
+
+        return new ResponseEntity<>(staffService.addStaff(
                 email, password, name, phone,
                 Long.valueOf(storeId),
                 Double.valueOf(salary),
                 LocalDate.parse(dateOfBirth,formatter),
-                gender),
-                HttpStatus.CREATED);
-    }
-    @PostMapping("shipper")
-    public ResponseEntity<?> addShipper(
-            @RequestParam("email") String email,
-            @RequestParam("password")String password,
-            @RequestParam("name")String name,
-            @RequestParam("phone")String phone,
-            @RequestParam("salary")String salary,
-            @RequestParam("dateOfBirth")String dateOfBirth,
-            @RequestParam("gender")String gender,
-            @RequestParam("storeId") String storeId
-    )  {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        NumberFormat numberFormat = DecimalFormat.getCurrencyInstance();
-        numberFormat.setMaximumFractionDigits(0);
-        return new ResponseEntity<>(shipperService.addShipper(
-                email, password, name, phone,
-                Double.valueOf(salary),
-                LocalDate.parse(dateOfBirth,formatter),
-                gender,
-                Long.valueOf(storeId)),
+                gender,role),
                 HttpStatus.CREATED);
     }
     @PostMapping("store")
@@ -123,6 +102,7 @@ public class AdminController {
                 menuService.addMenuItem(name,price,description,image,categories),HttpStatus.CREATED
         );
     }
+
     @PostMapping("login")
     public ResponseEntity<?> login(
             @RequestParam("userName") String userName,
@@ -137,15 +117,15 @@ public class AdminController {
     }
     @GetMapping("manager")
     public ResponseEntity<?> getAllManager(){
-        return ResponseEntity.ok().body(managerService.getAllManager());
+        return ResponseEntity.ok().body(staffService.getAllManager());
     }
     @GetMapping("shipper")
     public ResponseEntity<?> getAllShipper(){
-        return ResponseEntity.ok().body(shipperService.getAllShipper());
+        return ResponseEntity.ok().body(staffService.getAllShipper());
     }
     @GetMapping("store")
-    public ResponseEntity<?> getAllStore(@RequestParam(required = false) Boolean isManaged ){
-        return ResponseEntity.ok().body(storeService.getAllStore(isManaged));
+    public ResponseEntity<?> getAllStore(){
+        return ResponseEntity.ok().body(storeService.getAllStore());
     }
     @DeleteMapping("category/{id}")
     public ResponseEntity<?> deleteCategory(@PathVariable("id") Long id) throws IOException {
@@ -161,11 +141,11 @@ public class AdminController {
     }
     @DeleteMapping("shipper/{id}")
     public ResponseEntity<?> deleteShipper(@PathVariable("id") Long id){
-        return ResponseEntity.ok().body(shipperService.deleteShipper(id));
+        return ResponseEntity.ok().body(staffService.deleteShipper(id));
     }
     @DeleteMapping("manager/{id}")
     public ResponseEntity<?> deleteManager(@PathVariable("id") Long id){
-        return ResponseEntity.ok().body(managerService.deleteManager(id));
+        return ResponseEntity.ok().body(staffService.deleteManager(id));
     }
 
     @PatchMapping("category/{id}")
@@ -182,7 +162,7 @@ public class AdminController {
             @RequestParam("fields") String f
     ) throws JsonProcessingException {
         Map<String,String> fields = objectMapper.readValue(f, new TypeReference<>() {});
-        return ResponseEntity.ok().body(managerService.updateManager(id,fields));
+        return ResponseEntity.ok().body(staffService.updateStaff(id,fields));
     }
     @PatchMapping("store/{id}")
     public ResponseEntity<?> updateStore(
@@ -198,7 +178,7 @@ public class AdminController {
             @RequestParam("fields") String f
     ) throws JsonProcessingException {
         Map<String,String> fields = objectMapper.readValue(f, new TypeReference<>() {});
-        return ResponseEntity.ok().body(shipperService.updateShipper(id,fields));
+        return ResponseEntity.ok().body(staffService.updateStaff(id,fields));
     }
     @PatchMapping("menu/{id}")
     public ResponseEntity<?> updateMenuItem(

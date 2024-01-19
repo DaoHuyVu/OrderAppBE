@@ -1,12 +1,13 @@
 package com.nhom23.orderapp.config;
 
+import com.nhom23.orderapp.TsidUtils;
+import com.nhom23.orderapp.model.ERole;
 import com.nhom23.orderapp.security.jwt.AuthTokenFilter;
 import com.nhom23.orderapp.security.jwt.AuthenticationEntryPointJwt;
 import com.nhom23.orderapp.security.service.UserDetailsServiceImp;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -22,9 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Configuration
-@EnableMethodSecurity(
-        securedEnabled = true
-)
+@EnableMethodSecurity
+@SuppressWarnings("unused")
 public class SecurityConfig {
 
     @Bean
@@ -65,32 +65,21 @@ public class SecurityConfig {
         return registrationBean;
     }
     @Bean
-    @Order(1)
-    public SecurityFilterChain authFilterChain(HttpSecurity http) throws Exception{
-        http
-                .securityMatcher(
-                        "api/auth/**",
-                        "/api/manager/login",
-                        "/api/shipper/login",
-                        "/admin/login",
-                        "/admin/test")
-                .authorizeHttpRequests(auth ->
-                        auth.anyRequest().permitAll())
-                .cors(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .authenticationManager(authenticationManager())
-                .exceptionHandling(exception ->
-                        exception
-                                .authenticationEntryPoint(authenticationEntryPoint()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        return http.build();
-    }
-    @Bean
-    @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .authorizeHttpRequests(auth ->
+                        auth
+                                .requestMatchers(
+                                        "api/auth/**",
+                                        "api/manager/login",
+                                        "api/shipper/login",
+                                        "admin/login"
+                                        ).permitAll()
+                                .requestMatchers("admin/**").hasAuthority(ERole.ROLE_ADMIN.name())
+                                .requestMatchers("api/manager/**").hasAuthority(ERole.ROLE_MANAGER.name())
+                                .requestMatchers("api/shipper/**").hasAuthority(ERole.ROLE_STAFF.name())
+                                .requestMatchers("api/customer/**").hasAuthority(ERole.ROLE_USER.name())
+                                .anyRequest().authenticated())
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception ->

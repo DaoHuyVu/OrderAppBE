@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
+@SuppressWarnings("unused")
 public class MenuController {
     private static final Logger logger = LoggerFactory.getLogger(MenuController.class);
     @Autowired

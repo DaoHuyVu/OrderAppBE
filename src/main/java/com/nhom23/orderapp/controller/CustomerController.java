@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/customer")
+@SuppressWarnings("unused")
 public class CustomerController {
     @Autowired
     private CustomerService customerService;

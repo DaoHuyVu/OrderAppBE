@@ -1,8 +1,7 @@
 package com.nhom23.orderapp.repository;
 
-import com.nhom23.orderapp.dto.ManagerDto;
-import com.nhom23.orderapp.model.Manager;
+import com.nhom23.orderapp.dto.StaffDto;
 
 public interface CustomManagerRepository {
-    ManagerDto deleteManager(Long id);
+    StaffDto deleteManager(Long id);
 }

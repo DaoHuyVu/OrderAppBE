@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface StoreRepository extends JpaRepository<Store,Long>,CustomStoreRepository{
     @Query("""
-            SELECT s FROM Store s where not exists (SELECT m FROM Manager m where m.store = s)
+            SELECT s FROM Store s where not exists (SELECT m FROM Staff m where m.store = s)
             """)
     List<Store> findAllUnmanaged();
     @Query("""

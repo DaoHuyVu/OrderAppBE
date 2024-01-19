@@ -1,8 +1,7 @@
 package com.nhom23.orderapp.repository;
 
-import com.nhom23.orderapp.dto.ShipperDto;
-import com.nhom23.orderapp.model.Shipper;
+import com.nhom23.orderapp.dto.StaffDto;
 
 public interface CustomShipperRepository {
-    ShipperDto deleteShipper(Long id);
+    StaffDto deleteShipper(Long id);
 }

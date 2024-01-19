@@ -15,9 +15,9 @@ public interface ItemCategoryRepository extends JpaRepository<ItemCategory,Long>
     @Query("""
             Delete from ItemCategory i where i.category.id = :id
             """)
-    @Modifying(clearAutomatically = true,flushAutomatically = true)
+    @Modifying
     void deleteByCategoryId(Long id);
-    @Modifying(clearAutomatically = true,flushAutomatically = true)
+    @Modifying
     @Query("""
             Delete from ItemCategory i where i.item.id = :id
             """)

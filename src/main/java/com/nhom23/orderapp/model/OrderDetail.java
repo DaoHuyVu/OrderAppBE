@@ -20,7 +20,7 @@ public class OrderDetail {
     @ManyToOne(fetch = FetchType.LAZY)
     private Customer customer;
     @ManyToOne(fetch = FetchType.LAZY)
-    private Shipper shipper;
+    private Staff shipper;
     @ManyToOne(fetch = FetchType.LAZY)
     private Store store;
     private LocalDateTime createdAt;

@@ -14,7 +14,7 @@ public class CustomOrderDetailsRepositoryImpl implements CustomOrderDetailsRepos
     @Autowired
     private OrderItemRepository orderItemRepository;
     @Override
-    @Modifying(clearAutomatically = true,flushAutomatically = true)
+    @Modifying
     public void deleteOrder(Long id) {
         OrderDetail orderDetail = entityManager.find(OrderDetail.class,id);
         if(orderDetail != null){
