@@ -1,6 +1,6 @@
 package com.nhom23.orderapp.security.jwt;
 
-import com.nhom23.orderapp.helper.JwtExceptionResolver;
+import com.nhom23.orderapp.helper.ExceptionResolver;
 import com.nhom23.orderapp.security.service.UserDetailsImp;
 import com.nhom23.orderapp.security.service.UserDetailsServiceImp;
 import io.jsonwebtoken.JwtException;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -54,7 +53,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         }
         catch (JwtException ex){
             logger.error(ex.getMessage());
-            JwtExceptionResolver.resolve(response,ex);
+            ExceptionResolver.resolveJwtException(response,ex);
+        }
+        catch(Exception ex){
+            logger.error(ex.getMessage());
+            ExceptionResolver.resolveException(response,ex);
         }
     }
 }

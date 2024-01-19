@@ -1,9 +1,7 @@
 package com.nhom23.orderapp.service;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhom23.orderapp.dto.MenuItemDto;
 import com.nhom23.orderapp.exception.AlreadyExistException;
@@ -15,6 +13,8 @@ import com.nhom23.orderapp.repository.ItemCategoryRepository;
 import com.nhom23.orderapp.repository.MenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class MenuService {
     private final ObjectMapper mapper = new ObjectMapper();
-
     @Value("${imageDirectoryPath}")
     private String imageDir;
     @Autowired
@@ -51,6 +50,7 @@ public class MenuService {
         return menuRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
     }
+    @Cacheable(value = "menuItem",key = "{#category != null ? 'All' : #category}")
     public List<MenuItemDto> getAllMenuItemDto(String category){
         List<MenuItem> menuItems = getMenu(category);
         return menuItems.stream().map(
