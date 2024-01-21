@@ -14,21 +14,19 @@ import com.nhom23.orderapp.repository.MenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Field;
-import java.text.NumberFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 @Service
 @Transactional(readOnly = true)
 public class MenuService {
@@ -39,6 +37,7 @@ public class MenuService {
     private MenuRepository menuRepository;
     @Autowired
     private ItemCategoryRepository itemCategoryRepository;
+    @Cacheable(value = "menuItem",key="#category != null ? #category : 'All'")
     public List<MenuItem> getMenu(String category){
         if(category != null)
             return menuRepository.findByCategory(category);
@@ -50,7 +49,7 @@ public class MenuService {
         return menuRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
     }
-    @Cacheable(value = "menuItem",key = "{#category != null ? 'All' : #category}")
+    @Cacheable(value = "menuItemDto",key = "#category != null ? #category : 'All'")
     public List<MenuItemDto> getAllMenuItemDto(String category){
         List<MenuItem> menuItems = getMenu(category);
         return menuItems.stream().map(
@@ -65,6 +64,7 @@ public class MenuService {
         ).collect(Collectors.toList());
     }
     @Transactional
+    @CacheEvict(cacheNames = {"menuItem","menuItemDto"},allEntries = true)
     public MenuItemDto addMenuItem(
             String name,
             String price,
@@ -100,6 +100,7 @@ public class MenuService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"menuItem","menuItemDto"},allEntries = true)
     public MenuItem deleteMenuItem(Long id){
         MenuItem menuItem = menuRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Menu item not found"));
@@ -108,6 +109,7 @@ public class MenuService {
         return menuRepository.deleteMenuItem(id);
     }
     @Transactional
+    @CacheEvict(cacheNames = {"menuItem","menuItemDto"},allEntries = true)
     public MenuItemDto updateMenuItem(Long id, Map<String,String> fields,MultipartFile image) {
         MenuItem item = menuRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item not found"));

@@ -47,7 +47,11 @@ public class RedisConfig {
                 )
                 .withCacheConfiguration(
                         "menuItem",
-                        redisCacheConfiguration(Duration.ofMinutes(10))
+                        redisCacheConfiguration(Duration.ofDays(1))
+                )
+                .withCacheConfiguration(
+                        "menuItemDto",
+                        redisCacheConfiguration(Duration.ofDays(1))
                 )
                 .build();
     }
