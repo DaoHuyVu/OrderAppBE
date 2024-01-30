@@ -13,6 +13,6 @@ public class AccountRole {
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     private Account account;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Role role;
 }

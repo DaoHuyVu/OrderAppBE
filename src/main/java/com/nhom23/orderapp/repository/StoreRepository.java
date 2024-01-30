@@ -10,12 +10,8 @@ import java.util.List;
 
 public interface StoreRepository extends JpaRepository<Store,Long>,CustomStoreRepository{
     @Query("""
-            SELECT s FROM Store s where not exists (SELECT m FROM Staff m where m.store = s)
-            """)
-    List<Store> findAllUnmanaged();
-    @Query("""
             SELECT new com.nhom23.orderapp.dto.Revenue(
-            CONCAT(s.address.street,'-',s.address.district,'-',s.address.city),
+            CONCAT(s.address.street,' - ',s.address.district,' - ',s.address.city),
             COALESCE(sum(od.price),0))
             from Store s
             left join OrderDetail od
@@ -27,7 +23,7 @@ public interface StoreRepository extends JpaRepository<Store,Long>,CustomStoreRe
     List<Revenue> findRevenue(LocalDate from,LocalDate to);
     @Query("""
             SELECT new com.nhom23.orderapp.dto.Revenue(
-            CONCAT(s.address.street,'-',s.address.district,'-',s.address.city),
+            CONCAT(s.address.street,' - ',s.address.district,' - .',s.address.city),
             COALESCE(sum(price*quantity),0) as total )
             from Store s
             left join

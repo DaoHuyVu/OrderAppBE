@@ -71,25 +71,28 @@ public class StaffService {
         Account account = new Account(email,encoder.encode(password));
         account.setIsEnable(true);
         accountRepository.save(account);
-
-        AccountRole accountRole = new AccountRole();
-
         Staff staff = new Staff(
                 name,phone,dateOfBirth,salary,Gender.valueOf(gender)
         );
         Role role1 = roleRepository.findByRole(ERole.valueOf(role));
+
+        AccountRole accountRole1 = new AccountRole();
+        accountRole1.setAccount(account);
+        accountRole1.setRole(role1);
+
         Role role2 = roleRepository.findByRole(ERole.ROLE_USER);
-        accountRole.setAccount(account);
-        accountRole.setRole(role1);
-        accountRole.setRole(role2);
+        AccountRole accountRole2 = new AccountRole();
+        accountRole2.setRole(role2);
+        accountRole2.setAccount(account);
 
         staff.setAccount(account);
         staff.setStore(storeRepository.getReferenceById(storeId));
 
-        accountRoleRepository.save(accountRole);
+        accountRoleRepository.save(accountRole1);
+        accountRoleRepository.save(accountRole2);
         return staffRepository.save(staff).toDto();
     }
-    @PostAuthorize("hasAnyAuthority('ROLE_MANAGER','ROLE_STAFF)")
+    @PostAuthorize("hasAnyAuthority('ROLE_MANAGER','ROLE_STAFF')")
     public AuthResponse login(LoginRequest loginRequest,String url){
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(
